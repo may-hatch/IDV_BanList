@@ -64,30 +64,43 @@ banned_hunter2=sorted_ban[1]
 
 #データ表示
 if st.button("予測"):
-    if ban1 and ban2 and ban3:
+    if ban1!="" and ban2!="" and ban3!="":
         #３キャラ一致
-        response=supabase.table("BannedCharaList").select("*").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
+        st.text("３キャラ一致")
+        response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
         if response.data:
             st.table(response.data)
+        else:
+            st.text("該当なし")
         #２キャラ一致
-        response=supabase.table("BannedCharaList").select("*").execute()
+        st.text("２キャラ一致")
+        response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").execute()
         match2chara=[]
+        match1chara=[]
         for i in response.data:
             match_count=0
-            if i["ban1"] in list(sorted_ban):
+            if i["ban1"] in selected_survivor:
                 match_count+=1
-            if i["ban2"] in list(sorted_ban):
+            if i["ban2"] in selected_survivor:
                 match_count+=1
-            if i["ban3"] in list(sorted_ban):
+            if i["ban3"] in selected_survivor:
                 match_count+=1
             if match_count==2:
                 match2chara.append(i)
+            elif match_count==1:
+                match1chara.append(i)
         if match2chara!=[]:
             st.table(match2chara)
+        else:
+            st.text("該当なし")
         #１キャラ一致
-        response=supabase.table("BannedCharaList").select("*").or_("ban1.eq.ban1,ban2.eq.ban2,ban3.eq.ban3").execute()
-        if response.data:
+        st.text("１キャラ一致")
+        if match1chara!=[]:
             st.table(response.data)
+        else:
+            st.text("該当なし")
+    else:
+        st.warning("３人入力してください")
 
 #データ操作
 if st.button("記録"):
@@ -106,6 +119,7 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
 
 
