@@ -91,7 +91,7 @@ if st.button("予測"):
 
 #データ操作
 if st.button("記録"):
-    if ban1 and ban2 and ban3 and hunter:
+    if ban1!="" and ban2!="" and ban3!="" and hunter!="":
         res = supabase.table("BannedCharaList").insert({
             "rank":rank,
             "ban1":ban1,
@@ -106,6 +106,7 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
 
 
