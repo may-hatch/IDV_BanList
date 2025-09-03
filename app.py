@@ -17,7 +17,7 @@ supabase=create_client(url,key)
 #アプリ名
 st.title("ランク戦BANリスト")
 
-st.expander("使い方"):
+with st.expander("使い方"):
     st.write("""
     五段以上の３BANを想定した記録フォームです。
     遭遇時の段位、BANされたキャラ、マップ、ハンターを選択してください。
@@ -131,6 +131,7 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
 
 
