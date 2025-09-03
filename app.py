@@ -114,7 +114,7 @@ if st.button("検索"):
         #１キャラ一致
         st.text("【１キャラ一致】")
         if match1chara!=[]:
-            st.table(response.data)
+            st.table(match1chara)
         else:
             st.text("該当なし")
     else:
@@ -137,6 +137,7 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
 
 
