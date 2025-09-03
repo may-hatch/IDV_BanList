@@ -54,11 +54,11 @@ hunters={0: '復讐者', 1: '道化師', 2: '断罪狩人', 3: 'リッパー', 4
          26: 'オペラ歌手', 27: '「フールズ・ゴールド」', 28: '時空の影', 29: '「足萎えの羊」', 30: '「フラバルー」',
          31: '雑貨商', 32: '「ビリヤードプレイヤー」'}
 hunter=st.selectbox("対戦ハンターを選択",options=hunters)
-banned_hunterA=st.selectbox("1人目のBAN済ハンターを選択",options=hunters)
-banned_hunterB=st.selectbox("2人目のBAN済ハンターを選択",options=hunters)
+banned_hunterA=st.selectbox("1人目のBAN済ハンターを選択",options=list(hunters.values()))
+banned_hunterB=st.selectbox("2人目のBAN済ハンターを選択",options=list(hunters.values()))
 #並べ替え
 selected_hunter=[banned_hunterA,banned_hunterB]
-sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(int("inf"),x))
+sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(x,x))
 banned_hunter1=sorted_ban[0]
 banned_hunter2=sorted_ban[1]
 
@@ -106,4 +106,5 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
