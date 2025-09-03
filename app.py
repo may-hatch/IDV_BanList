@@ -66,14 +66,14 @@ banned_hunter2=sorted_ban[1]
 if st.button("予測"):
     if ban1!="" and ban2!="" and ban3!="":
         #３キャラ一致
-        st.text("３キャラ一致")
+        st.text("【３キャラ一致】")
         response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
         if response.data:
             st.table(response.data)
         else:
             st.text("該当なし")
         #２キャラ一致
-        st.text("２キャラ一致")
+        st.text("【２キャラ一致】")
         response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").execute()
         match2chara=[]
         match1chara=[]
@@ -94,7 +94,7 @@ if st.button("予測"):
         else:
             st.text("該当なし")
         #１キャラ一致
-        st.text("１キャラ一致")
+        st.text("【１キャラ一致】")
         if match1chara!=[]:
             st.table(response.data)
         else:
@@ -119,6 +119,7 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
 
 
