@@ -36,7 +36,7 @@ banB=st.selectbox("2人目のBAN済サバイバーを選択",options=list(survib
 banC=st.selectbox("3人目のBAN済サバイバーを選択",options=list(survibors.values()))
 #書き込む前に並べ替え
 selected_survivor=[banA,banB,banC]
-sorted_ban=sorted(selected_survivor,key=lambda x:survibors.get(int("inf"),x))
+sorted_ban=sorted(selected_survivor,key=lambda x:survibors.get(x,x))
 ban1=sorted_ban[0]
 ban2=sorted_ban[1]
 ban3=sorted_ban[2]
@@ -106,3 +106,4 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
