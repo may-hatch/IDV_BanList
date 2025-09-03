@@ -74,11 +74,11 @@ if st.button("予測"):
         match2chara=[]
         for i in response.data:
             match_count=0
-            if i["ban1"] in sorted_ban:
+            if i["ban1"] in list(sorted_ban):
                 match_count+=1
-            if i["ban2"] in sorted_ban:
+            if i["ban2"] in list(sorted_ban):
                 match_count+=1
-            if i["ban3"] in sorted_ban:
+            if i["ban3"] in list(sorted_ban):
                 match_count+=1
             if match_count==2:
                 match2chara.append(i)
@@ -106,6 +106,7 @@ if st.button("記録"):
         st.warning("未入力の項目があります")
 
         
+
 
 
 
