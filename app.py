@@ -176,13 +176,13 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.write("選択中")
             for sp in sp_list[4:7]:
                 #0(5),1(6),2(7)
-                with col_2[sp_list.index(sp)-5]:
+                with col_2[sp_list.index(sp)-4]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[7:10]:
                 #0(8),1(9),2(10)
-                with col_3[sp_list.index(sp)-8]:
+                with col_3[sp_list.index(sp)-7]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
@@ -197,12 +197,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[4:8]:
-                with col_2[sp_list.index(sp)-5]:
+                with col_2[sp_list.index(sp)-4]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[8:]:
-                with col_3[sp_list.index(sp)-9]:
+                with col_3[sp_list.index(sp)-8]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
@@ -217,12 +217,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[3:6]:
-                with col_2[sp_list.index(sp)-4]:
+                with col_2[sp_list.index(sp)-3]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[6:9]:
-                with col_3[sp_list.index(sp)-7]:
+                with col_3[sp_list.index(sp)-6]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
