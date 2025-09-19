@@ -19,7 +19,7 @@ if "spawn_h" not in st.session_state:
     st.session_state["spawn_h"]=[""]
 
 if "spawn_s" not in st.session_state:
-    st.session_state["spawn_s"]=[]*12
+    st.session_state["spawn_s"]=[None]*4
 
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
 
