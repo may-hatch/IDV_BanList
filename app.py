@@ -18,6 +18,9 @@ supabase=create_client(url,key)
 if "spawn_h" not in st.session_state:
     st.session_state["spawn_h"]=[""]
 
+if "spawn_s" not in st.session_state:
+    st.session_state["spawn_s"]=[]
+
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
 
 #アプリ作成
@@ -28,6 +31,7 @@ with st.expander("使い方"):
     st.write("""
     【目的】
     五段以上の鯖３BANを想定した記録フォームです。
+
     サバイバー段位(最高峰は7)、BANされたキャラ、マップ、ハンターを選択してください。
     
     必須項目を入力後「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
@@ -37,14 +41,14 @@ with st.expander("使い方"):
 
     「ハンターから検索」を押すと、過去にそのハンターがどんなBANをしたかの記録が表示されます。
     
-    【更新】：
-    2025-09-19-12:00
+    【更新】
+    2025-09-19-14:00
     検索結果から１キャラ一致を削除。
     検索結果の表でマップを表示。
     ハンターから逆引きするボタンを設置。
     記録項目（任意）にスポーン選択を追加。
              
-    【更新予定】：
+    【更新予定】
     段位を考慮して表示(私の段位が上がれば…)
     """)
 
@@ -189,8 +193,17 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     for sp in sp_list[6:9]:
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
-        spawn_s={sp:st.session_state.get(f"checkBox_{sp}",False)for sp in sp_list}
-        st.write("選択中スポーン位置：",spawn_s)
+        if st.button("スポーンを確定"):    
+            i=0
+            for sp in sp_list:
+                if st.session_state.get(f"checkBox_{sp}",False)==True:
+                    st.session_state["spawn_s"][i]=sp
+                    i+=1
+            spawn_s1=st.session_state["spawn_s"][0]
+            spawn_s2=st.session_state["spawn_s"][1]
+            spawn_s3=st.session_state["spawn_s"][2]
+            spawn_s4=st.session_state["spawn_s"][3]
+
 
 #データ表示
 #サバイバーからハンターを検索ｓ
