@@ -164,28 +164,61 @@ with st.expander("【作業中】スポーン記録(任意)"):
     #ハンターの位置
     with st.container():
         if map=="永眠町":
-            for sp in sp_list[:11]:
-                if st.button(f"{sp}",key=f"{sp}"):
-                    st.session_state["spaw_h"]=sp
-                    st.write(f"選択中のスポーン位置：{sp}")
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7=st.columns(3)
-            sp8,sp9,sp10=st.columns(3)
+            col_1=st.columns(4)
+            col_2=st.columns(3)
+            col_3=st.columns(3)
+            for sp in sp_list[:4]:
+                with col_1[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
+            for sp in sp_list[4:7]:
+                with col_2[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
+            for sp in sp_list[7:11]:
+                with col_3[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
 
         elif map=="湖景村" or map=="月の河公園":
-            for sp in sp_list:
-                if st.button(f"{sp}",key=f"{sp}"):
-                    st.session_state["spaw_h"]=sp
-                    st.write(f"選択中のスポーン位置：{sp}")
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7,sp8=st.columns(4)
-            sp9,sp10,sp11,sp12=st.columns(4)
+            col_1=st.columns(4)
+            col_2=st.columns(4)
+            col_3=st.columns(4)
+            for sp in sp_list[:4]:
+                with col_1[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
+            for sp in sp_list[4:8]:
+                with col_2[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
+            for sp in sp_list[8:]:
+                with col_3[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
 
         else:
-            for sp in sp_list[:9]:
-                if st.button(f"{sp}",key=f"{sp}"):
-                    st.session_state["spaw_h"]=sp
-                    st.write(f"選択中のスポーン位置：{sp}")
-            sp1,sp2,sp3=st.columns(3)
-            sp4,sp5,sp6=st.columns(3)
-            sp7,sp8,sp9=st.columns(3)
+            col_1=st.columns(4)
+            col_2=st.columns(4)
+            col_3=st.columns(4)
+            for sp in sp_list[:4]:
+                with col_1[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
+            for sp in sp_list[4:8]:
+                with col_2[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
+            for sp in sp_list[8:]:
+                with col_3[sp_list.index(sp)]:
+                    if st.button(f"{sp}",key=f"{sp}"):
+                        st.session_state["spaw_h"]=sp
+                        st.write(f"選択中のスポーン位置：{sp}")
