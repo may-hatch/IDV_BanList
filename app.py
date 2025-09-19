@@ -18,42 +18,36 @@ supabase=create_client(url,key)
 if "spawn_h" not in st.session_state:
     st.session_state["spawn_h"]=[""]
 if "spawn_s" not in st.session_state:
-    st.session_state["spawn_s"]=["","","",""]
+    st.session_state["spawn_s"]={}
 
-sp_list=["sp1","sp2","sp3","sp4","sp5","sp6","sp7","sp8","sp9","sp10","sp11","sp12"]
+sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
 
 #アプリ作成
 #アプリ名
-st.title("ランク戦BANリスト")
+st.title("BAN記録/検索")
 
 with st.expander("使い方"):
     st.write("""
-    テストで作った身内用です！！サーバー外に共有しないでください！！
-    なにか追加したい項目などあれば気軽に教えてください～
-    
+    【目的】
     五段以上の鯖３BANを想定した記録フォームです。
-    遭遇時の段位、BANされたキャラ、マップ、ハンターを選択してください。
-    ※BANしたハンターは任意記録です。
+    サバイバー段位(最高峰は7)、BANされたキャラ、マップ、ハンターを選択してください。
     
-    サバイバーのBAN入力後、
-    「検索」を押すと、そのBANをしたハンターの一覧を表示します。
-    「記録」を押すと、そこまでに入力した情報が記録されます。
-    ※記録されたデータは次回以降の検索に使われます。
+    必須項目を入力後「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
+    ２キャラのみ一致の場合は、マップが一致しているハンターが先に表示されます。
+    
+    入力後に「記録」を押すと、そこまでに入力した情報が記録されます。
 
-    今はただ一覧を表示するようになってます
+    「ハンターから検索」を押すと、過去にそのハンターがどんなBANをしたかの記録が表示されます。
     
-    更新：
+    【更新】：
     2025-09-19-12:00
-    データ収集の進行に伴い更新。
-    検索結果から１キャラ一致を削除
-    検索結果でマップを表示
-    ハンターから逆引きするボタンを設置
-    記録項目（任意）にスポーン選択を追加
-             ※スマホだと表示が崩れる問題を作業中
+    検索結果から１キャラ一致を削除。
+    検索結果の表でマップを表示。
+    ハンターから逆引きするボタンを設置。
+    記録項目（任意）にスポーン選択を追加。
              
-    更新予定：
-    マップで優先度を付けた検索に仕様変更
-    段位を考慮して表示(これは私が段位が上がれば…)
+    【更新予定】：
+    段位を考慮して表示(私の段位が上がれば…)
     """)
 
 #入力フォーム_段位
@@ -61,11 +55,11 @@ rank=st.selectbox("段位を選択",options=["5","6","7"])
 
 #入力フォーム_マップ
 maps=["","軍需工場","赤の教会","聖心病院","湖景村","月の河公園","レオの思い出","永眠町","中華街","罪の森"]
-map=st.selectbox("マップを選択",options=maps)
+map=st.selectbox("マップを選択（必須）",options=maps)
 
 #入力フォーム_サバイバー
 #見やすさのためにたたむ
-with st.expander("BANされたサバイバーを３人記録"):
+with st.expander("BANされたサバイバーを記録（必須）"):
     survivors= {0: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
                 6: '冒険家', 7: '傭兵', 8: '空軍', 9: '祭司', 10: '機械技師',
                 11: 'オフェンス', 12: '心眼', 13: '調香師', 14: 'カウボーイ', 15: '踊り子',
@@ -94,10 +88,10 @@ hunters={0: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパ
          21: '漁師', 22: '蝋人形師', 23: '「悪夢」', 24: '書記官', 25: '隠者',
          26: '夜の番人', 27: 'オペラ歌手', 28: '「フールズ・ゴールド」', 29: '時空の影', 30: '「足萎えの羊」',
          31: '「フラバルー」', 32: '雑貨商', 33: '「ビリヤードプレイヤー」'} 
-hunter=st.selectbox("対戦ハンターを選択",options=list(hunters.values()))
+hunter=st.selectbox("対戦ハンターを選択（必須）",options=list(hunters.values()))
 #入力フォーム_BAN済ハンター
 #BAN済ハンターは任意なのでたたむ
-with st.expander("BAN済みハンターを記録(任意)"):
+with st.expander("BANしたハンターを記録（任意）"):
     banned_hunterA=st.selectbox("1人目のBAN済ハンター",options=list(hunters.values()))
     banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
 #並べ替え
@@ -109,50 +103,124 @@ with st.expander("BAN済みハンターを記録(任意)"):
 #入力フォーム_スポーン位置
 #任意・試験的であることを明記
 with st.expander("【作業中】スポーン記録(任意)"):
-    st.text(f"現在のマップ：{map}")
-    st.text(f"選択中スポーン位置：{st.session_state["spawn_h"]}")
     #ハンターの位置
-    with st.container():
-        if map=="永眠町":
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[:4]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[4:7]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[7:10]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-        elif map=="湖景村" or map=="月の河公園":
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[:4]:    
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[4:8]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[8:]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-        else:
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[:3]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[3:6]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-            with st.container(horizontal=True,horizontal_alignment="left"):
-                for sp in sp_list[6:9]:
-                    if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spawn_h"]=sp
-    spawn_h=st.session_state["spawn_h"]
+    with st.expander("ハンターの位置"):
+        st.text(f"現在のマップ：{map}")
+        st.text(f"選択中スポーン位置：{st.session_state["spawn_h"]}")
+        with st.container():
+            if map=="永眠町":
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[:4]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[4:7]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[7:10]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+            elif map=="湖景村" or map=="月の河公園":
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[:4]:    
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[4:8]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[8:]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+            else:
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[:3]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[3:6]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[6:9]:
+                        if st.button(f"{sp}",key=f"bu_{sp}"):
+                            st.session_state["spawn_h"]=sp
+        spawn_h=st.session_state["spawn_h"]
+#サバイバーの位置
+    with st.expander("ハンターの位置"):
+        st.text(f"現在のマップ：{map}")
+        st.text(f"選択中スポーン位置：{st.session_state["spawn_s"]}")
+        with st.container():
+            if map=="永眠町":
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[:4]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[4:7]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[7:10]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+            elif map=="湖景村" or map=="月の河公園":
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[:4]:    
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[4:8]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[8:]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+            else:
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[:3]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[3:6]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+                with st.container(horizontal=True,horizontal_alignment="left"):
+                    for sp in sp_list[6:9]:
+                        key = f"checkBox_{sp}"
+                        if key not in st.session_state["spawn_s"]:
+                            st.session_state["spawn_s"][key] = False
+                        st.session_state["spawn_s"][key]=st.checkbox("",
+                            value=st.session_state["spawn_s"][key])
+        spawn_s=st.session_state["spawn_s"]
+        st.write(spawn_s)
 
 #データ表示
 #サバイバーからハンターを検索
@@ -220,7 +288,9 @@ if st.button("記録"):
             "hunter":hunter,
             "banned_hunter1":banned_hunter1,
             "banned_hunter2":banned_hunter2,
-            "spawn_h":spawn_h}).execute()
+            "spawn_h":spawn_h,
+            #"spawn_s":spawn_s
+            }).execute()
         st.success("記録完了")
     else:
         st.warning("未入力の項目があります")
