@@ -198,14 +198,14 @@ if st.button("サバイバーから検索"):
             if i["map"] == map:
                 match_m=True
             if i["ban1"] in selected_survivor:
-                match_count+=1
+                match_count_c+=1
             if i["ban2"] in selected_survivor:
-                match_count+=1
+                match_count_c+=1
             if i["ban3"] in selected_survivor:
-                match_count+=1
-            if match_count==2 and match_m==True:
+                match_count_c+=1
+            if match_count_c==2 and match_m==True:
                 match2chara_map.append(i)
-            elif match_count==2:
+            elif match_count_c==2:
                 match2chara.append(i)
             #elif match_count==1:
             #    match1chara.append(i)
