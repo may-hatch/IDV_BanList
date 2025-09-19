@@ -17,8 +17,6 @@ supabase=create_client(url,key)
 #マップ管理
 if "spawn_h" not in st.session_state:
     st.session_state["spawn_h"]=[""]
-if "spawn_s" not in st.session_state:
-    st.session_state["spawn_s"]={}
 
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
 
@@ -149,7 +147,7 @@ with st.expander("【作業中】スポーン記録(任意)"):
                             st.session_state["spawn_h"]=sp
         spawn_h=st.session_state["spawn_h"]
 #サバイバーの位置
-    with st.expander("ハンターの位置"):
+    with st.expander("サバイバーの位置"):
         st.text(f"現在のマップ：{map}")
         st.text(f"選択中スポーン位置：{st.session_state["spawn_s"]}")
         with st.container():
@@ -179,47 +177,29 @@ with st.expander("【作業中】スポーン記録(任意)"):
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[:4]:    
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[4:8]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[8:]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
             else:
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[:3]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[3:6]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[6:9]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
-        spawn_s=st.session_state["spawn_s"]
+                        st.checkbox("",key=key)
+        spawn_s={sp:st.session_state.get(f"spawn_s_checkbox_{sp}",False)for sp in sp_list}
         st.write(spawn_s)
 
 #データ表示
