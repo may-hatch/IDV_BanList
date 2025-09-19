@@ -113,67 +113,54 @@ with st.expander("【作業中】スポーン記録(任意)"):
     #ハンターの位置
     with st.container():
         if map=="永眠町":
-            col_1=st.columns(4)
-            col_2=st.columns([1,1,2])
-            col_3=st.columns([1,1,2])
-            for sp in sp_list[:4]:
-                #0,1,2,3
-                with col_1[sp_list.index(sp)]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[:4]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[4:7]:
-                #0(5),1(6),2(7)
-                with col_2[sp_list.index(sp)-4]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[4:7]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[7:10]:
-                #0(8),1(9),2(10)
-                with col_3[sp_list.index(sp)-7]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[7:10]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-
         elif map=="湖景村" or map=="月の河公園":
-            col_1=st.columns(4)
-            col_2=st.columns(4)
-            col_3=st.columns(4)
-            for sp in sp_list[:4]:
-                with col_1[sp_list.index(sp)]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[:4]:    
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[4:8]:
-                with col_2[sp_list.index(sp)-4]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[4:8]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[8:]:
-                with col_3[sp_list.index(sp)-8]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[8:]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-
         else:
-            col_1=st.columns(3)
-            col_2=st.columns(3)
-            col_3=st.columns(3)
-            for sp in sp_list[:3]:
-                with col_1[sp_list.index(sp)]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[:3]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[3:6]:
-                with col_2[sp_list.index(sp)-3]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[3:6]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[6:9]:
-                with col_3[sp_list.index(sp)-6]:
+            with st.container(horizontal=True,horizontal_alignment="left"):
+                for sp in sp_list[6:9]:
                     if st.button(f"{sp}",key=f"{sp}"):
-                        st.session_state["spaw_h"]=sp
+                        st.session_state["spawn_h"]=sp
                         st.write("選択中")
+    spawn_h=st.session_state["spawn_h"]
 
 #データ表示
 #サバイバーからハンターを検索
@@ -217,13 +204,6 @@ if st.button("サバイバーから検索"):
             st.table(match2chara)
         if match2chara_map==[] and match2chara==[]:
             st.text("該当なし")
-        #１キャラ一致
-        #データが増えたので一時削除
-        #st.text("【１キャラ一致】")
-        #if match1chara!=[]:
-        #    st.table(match1chara)
-        #else:
-        #    st.text("該当なし")
     else:
         st.warning("３人入力してください")
 
@@ -238,7 +218,7 @@ if st.button("ハンターから検索"):
 
 #データ操作
 if st.button("記録"):
-    if ban1!="" and ban2!="" and ban3!="" and hunter!="":
+    if ban1!="" and ban2!="" and ban3!="" and hunter!="" and map!="":
         res = supabase.table("BannedCharaList").insert({
             "rank":rank,
             "ban1":ban1,
@@ -247,7 +227,8 @@ if st.button("記録"):
             "map":map,
             "hunter":hunter,
             "banned_hunter1":banned_hunter1,
-            "banned_hunter2":banned_hunter2}).execute()
+            "banned_hunter2":banned_hunter2,
+            "spawn_h":spawn_h}).execute()
         st.success("記録完了")
     else:
         st.warning("未入力の項目があります")
