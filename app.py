@@ -212,10 +212,10 @@ if st.button("サバイバーから検索"):
         if match2chara_map!=[]:
             st.text("マップ一致")
             st.table(match2chara_map)
-        elif match2chara!=[]:
+        if match2chara!=[]:
             st.text("マップ不一致")
             st.table(match2chara)
-        else:
+        if match2chara_map==[] and match2chara==[]:
             st.text("該当なし")
         #１キャラ一致
         #データが増えたので一時削除
