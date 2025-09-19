@@ -198,7 +198,7 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     for sp in sp_list[6:9]:
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
-        spawn_s={sp:st.session_state.get(f"spawn_s_checkbox_{sp}",False)for sp in sp_list}
+        spawn_s={sp:st.session_state.get(f"checkBox_{sp}",False)for sp in sp_list}
         st.write("選択中スポーン位置：",spawn_s)
 
 #データ表示
