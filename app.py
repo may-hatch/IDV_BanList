@@ -154,24 +154,15 @@ with st.expander("【作業中】スポーン記録(任意)"):
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[:4]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[4:7]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[7:10]:
                         key = f"checkBox_{sp}"
-                        if key not in st.session_state["spawn_s"]:
-                            st.session_state["spawn_s"][key] = False
-                        st.session_state["spawn_s"][key]=st.checkbox("",
-                            value=st.session_state["spawn_s"][key])
+                        st.checkbox("",key=key)
             elif map=="湖景村" or map=="月の河公園":
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[:4]:    
@@ -198,7 +189,7 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     for sp in sp_list[6:9]:
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
-        spawn_s={sp:st.session_state.get(f"checkBox_{sp}",False)for sp in sp_list}
+        spawn_s={sp:st.session_state.get(f"checkox_{sp}",False)for sp in sp_list}
         st.write("選択中スポーン位置：",spawn_s)
 
 #データ表示
