@@ -110,6 +110,7 @@ with st.expander("BAN済みハンターを記録(任意)"):
 #任意・試験的であることを明記
 with st.expander("【作業中】スポーン記録(任意)"):
     st.text(f"現在のマップ：{map}")
+    st.text(f"選択中スポーン位置：{st.session_state["spawn_h"]}")
     #ハンターの位置
     with st.container():
         if map=="永眠町":
@@ -117,49 +118,40 @@ with st.expander("【作業中】スポーン記録(任意)"):
                 for sp in sp_list[:4]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[4:7]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[7:10]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
         elif map=="湖景村" or map=="月の河公園":
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[:4]:    
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[4:8]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[8:]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
         else:
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[:3]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[3:6]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
             with st.container(horizontal=True,horizontal_alignment="left"):
                 for sp in sp_list[6:9]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spawn_h"]=sp
-                        st.write("選択中")
     spawn_h=st.session_state["spawn_h"]
 
 #データ表示
