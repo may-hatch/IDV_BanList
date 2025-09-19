@@ -194,11 +194,11 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
         if st.button("スポーンを確定"):    
-            i=0
+            cnt=0
             for sp in sp_list:
                 if st.session_state.get(f"checkBox_{sp}",False)==True:
-                    st.session_state["spawn_s"][i]=sp
-                    i+=1
+                    st.session_state["spawn_s"][cnt]=sp
+                    cnt+=1
             spawn_s1=st.session_state["spawn_s"][0]
             spawn_s2=st.session_state["spawn_s"][1]
             spawn_s3=st.session_state["spawn_s"][2]
