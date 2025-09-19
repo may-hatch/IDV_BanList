@@ -161,6 +161,7 @@ if st.button("記録"):
 #入力フォーム_スポーン位置
 #任意・試験的であることを明記
 with st.expander("【作業中】スポーン記録(任意)"):
+    st.title(map)
     #ハンターの位置
     with st.container():
         if map=="永眠町":
