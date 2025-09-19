@@ -150,6 +150,8 @@ with st.expander("【作業中】スポーン記録(任意)"):
                             st.session_state["spawn_h"]=sp
         spawn_h=st.session_state["spawn_h"]
         st.text(f"選択中スポーン位置：{spawn_h}")
+        if st.button("スポーン位置をリセット"):
+            st.session_state["spawn_h"]=""
 #サバイバーの位置
     with st.expander("サバイバーの位置"):
         st.text(f"現在のマップ：{map}")
@@ -208,10 +210,11 @@ with st.expander("【作業中】スポーン記録(任意)"):
             spawn_s2=st.session_state["spawn_s"][1]
             spawn_s3=st.session_state["spawn_s"][2]
             spawn_s4=st.session_state["spawn_s"][3]
+            st.success(f"スポーンを確定しました：{st.session_state["spawn_s"]}")
 
 
 #データ表示
-#サバイバーからハンターを検索ｓ
+#サバイバーからハンターを検索
 if st.button("サバイバーから検索"):
     if ban1!="" and ban2!="" and ban3!="":
         #３キャラ一致
@@ -281,5 +284,4 @@ if st.button("記録"):
             }).execute()
         st.success("記録完了")
     else:
-
         st.warning("未入力の項目があります")
