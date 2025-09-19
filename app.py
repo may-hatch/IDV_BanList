@@ -42,12 +42,18 @@ with st.expander("使い方"):
 
     今はただ一覧を表示するようになってます
     
-    更新予定：
-    2025-09-19（作業中）
+    更新：
+    2025-09-19-12:00
     データ収集の進行に伴い更新。
-    o検索結果から１キャラ一致を削除
-    xマップを含めて優先順を付けた検索に仕様変更
-    x記録項目（任意）にスポーン選択を追加
+    検索結果から１キャラ一致を削除
+    検索結果でマップを表示
+    ハンターから逆引きするボタンを設置
+    記録項目（任意）にスポーン選択を追加
+             ※スマホだと表示が崩れる問題を作業中
+             
+    更新予定：
+    マップで優先度を付けた検索に仕様変更
+    段位を考慮して表示(これは私が段位が上がれば…)
     """)
 
 #入力フォーム_段位
@@ -99,64 +105,6 @@ with st.expander("BAN済みハンターを記録(任意)"):
     sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(x,x))
     banned_hunter1=sorted_ban[0]
     banned_hunter2=sorted_ban[1]
-
-#データ表示
-if st.button("検索"):
-    if ban1!="" and ban2!="" and ban3!="":
-        #３キャラ一致
-        st.text("【３キャラ一致】")
-        response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
-        if response.data:
-            st.table(response.data)
-        else:
-            st.text("該当なし")
-        #２キャラ一致
-        st.text("【２キャラ一致】")
-        response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").execute()
-        match2chara=[]
-        match1chara=[]
-        for i in response.data:
-            match_count=0
-            if i["ban1"] in selected_survivor:
-                match_count+=1
-            if i["ban2"] in selected_survivor:
-                match_count+=1
-            if i["ban3"] in selected_survivor:
-                match_count+=1
-            if match_count==2:
-                match2chara.append(i)
-            elif match_count==1:
-                match1chara.append(i)
-        if match2chara!=[]:
-            st.table(match2chara)
-        else:
-            st.text("該当なし")
-        #１キャラ一致
-        #データが増えたので一時削除
-        #st.text("【１キャラ一致】")
-        #if match1chara!=[]:
-        #    st.table(match1chara)
-        #else:
-        #    st.text("該当なし")
-    else:
-        st.warning("３人入力してください")
-
-#データ操作
-if st.button("記録"):
-    if ban1!="" and ban2!="" and ban3!="" and hunter!="":
-        res = supabase.table("BannedCharaList").insert({
-            "rank":rank,
-            "ban1":ban1,
-            "ban2":ban2,
-            "ban3":ban3,
-            "map":map,
-            "hunter":hunter,
-            "banned_hunter1":banned_hunter1,
-            "banned_hunter2":banned_hunter2}).execute()
-        st.success("記録完了")
-    else:
-        st.warning("未入力の項目があります")
-
 
 #入力フォーム_スポーン位置
 #任意・試験的であることを明記
@@ -226,3 +174,80 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
+
+#データ表示
+#サバイバーからハンターを検索
+if st.button("サバイバーから検索"):
+    if ban1!="" and ban2!="" and ban3!="":
+        #３キャラ一致
+        st.text("【３キャラ一致】")
+        response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
+        if response.data:
+            st.table(response.data)
+        else:
+            st.text("該当なし")
+        #２キャラ一致
+        st.text("【２キャラ一致】")
+        response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").execute()
+        match2chara_map=[]
+        match2chara=[]
+        #match1chara=[]
+        for i in response.data:
+            match_m=False
+            match_count_c=0
+            if i["map"] == map:
+                match_m=True
+            if i["ban1"] in selected_survivor:
+                match_count+=1
+            if i["ban2"] in selected_survivor:
+                match_count+=1
+            if i["ban3"] in selected_survivor:
+                match_count+=1
+            if match_count==2 and match_m==True:
+                match2chara_map.append(i)
+            elif match_count==2:
+                match2chara.append(i)
+            #elif match_count==1:
+            #    match1chara.append(i)
+        if match2chara_map!=[]:
+            st.text("マップ一致")
+            st.table(match2chara_map)
+        elif match2chara!=[]:
+            st.text("マップ不一致")
+            st.table(match2chara)
+        else:
+            st.text("該当なし")
+        #１キャラ一致
+        #データが増えたので一時削除
+        #st.text("【１キャラ一致】")
+        #if match1chara!=[]:
+        #    st.table(match1chara)
+        #else:
+        #    st.text("該当なし")
+    else:
+        st.warning("３人入力してください")
+
+#ハンターからサバイバーを検索
+if st.button("ハンターから検索"):
+    if hunter!="":
+        response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("hunter",hunter).execute()
+        if response.data:
+            st.table(response.data)
+        else:
+            st.text("記録なし")
+
+#データ操作
+if st.button("記録"):
+    if ban1!="" and ban2!="" and ban3!="" and hunter!="":
+        res = supabase.table("BannedCharaList").insert({
+            "rank":rank,
+            "ban1":ban1,
+            "ban2":ban2,
+            "ban3":ban3,
+            "map":map,
+            "hunter":hunter,
+            "banned_hunter1":banned_hunter1,
+            "banned_hunter2":banned_hunter2}).execute()
+        st.success("記録完了")
+    else:
+        st.warning("未入力の項目があります")
