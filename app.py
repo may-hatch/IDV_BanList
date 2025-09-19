@@ -167,10 +167,8 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     for sp in sp_list[7:10]:
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
-                if False:
-                    for sp in sp_list[10:]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
+                st.session_state["checkBox_11"]=False
+                st.session_state["checkBox_12"]=False
             elif map=="湖景村" or map=="月の河公園":
                 with st.container(horizontal=True,horizontal_alignment="left"):
                     for sp in sp_list[:4]:    
@@ -197,10 +195,9 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     for sp in sp_list[6:9]:
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
-                if False:
-                    for sp in sp_list[9:]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
+                st.session_state["checkBox_10"]=False
+                st.session_state["checkBox_11"]=False
+                st.session_state["checkBox_12"]=False
         if st.button("スポーンを確定"):    
             cnt=0
             for sp in sp_list:
