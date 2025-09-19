@@ -149,7 +149,6 @@ with st.expander("【作業中】スポーン記録(任意)"):
 #サバイバーの位置
     with st.expander("サバイバーの位置"):
         st.text(f"現在のマップ：{map}")
-        st.text(f"選択中スポーン位置：{st.session_state["spawn_s"]}")
         with st.container():
             if map=="永眠町":
                 with st.container(horizontal=True,horizontal_alignment="left"):
@@ -200,10 +199,10 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         key = f"checkBox_{sp}"
                         st.checkbox("",key=key)
         spawn_s={sp:st.session_state.get(f"spawn_s_checkbox_{sp}",False)for sp in sp_list}
-        st.write(spawn_s)
+        st.write("選択中スポーン位置：",spawn_s)
 
 #データ表示
-#サバイバーからハンターを検索
+#サバイバーからハンターを検索ｓ
 if st.button("サバイバーから検索"):
     if ban1!="" and ban2!="" and ban3!="":
         #３キャラ一致
