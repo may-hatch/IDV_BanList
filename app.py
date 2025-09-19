@@ -180,7 +180,7 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
-            for sp in sp_list[7:11]:
+            for sp in sp_list[7:10]:
                 #0(8),1(9),2(10)
                 with col_3[sp_list.index(sp)-8]:
                     if st.button(f"{sp}",key=f"{sp}"):
