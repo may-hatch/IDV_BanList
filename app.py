@@ -166,23 +166,31 @@ with st.expander("【作業中】スポーン記録(任意)"):
     with st.container():
         if map=="永眠町":
             col_1=st.columns(4)
-            col_2=st.columns(3)
-            col_3=st.columns(3)
+            col_2=st.columns(4)
+            col_3=st.columns(4)
             for sp in sp_list[:4]:
+                #0,1,2,3
                 with col_1[sp_list.index(sp)]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[4:7]:
-                with col_2[sp_list.index(sp)-4]:
+                #0(5),1(6),2(7)
+                with col_2[sp_list.index(sp)-5]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
+                pass
+            with col_2[3]:
+                st.text("")
             for sp in sp_list[7:11]:
-                with col_3[sp_list.index(sp)-7]:
+                #0(8),1(9),2(10)
+                with col_3[sp_list.index(sp)-8]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
+            with col_2[3]:
+                st.text("")
 
         elif map=="湖景村" or map=="月の河公園":
             col_1=st.columns(4)
@@ -194,12 +202,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[4:8]:
-                with col_2[sp_list.index(sp)-3]:
+                with col_2[sp_list.index(sp)-5]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[8:]:
-                with col_3[sp_list.index(sp)-6]:
+                with col_3[sp_list.index(sp)-9]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
@@ -214,12 +222,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[3:6]:
-                with col_2[sp_list.index(sp)-3]:
+                with col_2[sp_list.index(sp)-4]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
             for sp in sp_list[6:9]:
-                with col_3[sp_list.index(sp)-6]:
+                with col_3[sp_list.index(sp)-7]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
