@@ -173,12 +173,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
             for sp in sp_list[4:7]:
-                with col_2[sp_list.index(sp)]:
+                with col_2[sp_list.index(sp)-4]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
             for sp in sp_list[7:11]:
-                with col_3[sp_list.index(sp)]:
+                with col_3[sp_list.index(sp)-7]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
@@ -193,12 +193,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
             for sp in sp_list[4:8]:
-                with col_2[sp_list.index(sp)]:
+                with col_2[sp_list.index(sp)-3]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
             for sp in sp_list[8:]:
-                with col_3[sp_list.index(sp)]:
+                with col_3[sp_list.index(sp)-6]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
@@ -213,12 +213,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
             for sp in sp_list[3:6]:
-                with col_2[sp_list.index(sp)]:
+                with col_2[sp_list.index(sp)-3]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
             for sp in sp_list[6:9]:
-                with col_3[sp_list.index(sp)]:
+                with col_3[sp_list.index(sp)-6]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write(f"選択中のスポーン位置：{sp}")
