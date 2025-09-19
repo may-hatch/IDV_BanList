@@ -166,8 +166,8 @@ with st.expander("【作業中】スポーン記録(任意)"):
     with st.container():
         if map=="永眠町":
             col_1=st.columns(4)
-            col_2=st.columns(4)
-            col_3=st.columns(4)
+            col_2=st.columns([1,1,2])
+            col_3=st.columns([1,1,2])
             for sp in sp_list[:4]:
                 #0,1,2,3
                 with col_1[sp_list.index(sp)]:
@@ -180,17 +180,12 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
-                pass
-            with col_2[3]:
-                st.text("")
             for sp in sp_list[7:11]:
                 #0(8),1(9),2(10)
                 with col_3[sp_list.index(sp)-8]:
                     if st.button(f"{sp}",key=f"{sp}"):
                         st.session_state["spaw_h"]=sp
                         st.write("選択中")
-            with col_2[3]:
-                st.text("")
 
         elif map=="湖景村" or map=="月の河公園":
             col_1=st.columns(4)
