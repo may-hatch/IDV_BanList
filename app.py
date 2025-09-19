@@ -104,7 +104,6 @@ with st.expander("【作業中】スポーン記録(任意)"):
     #ハンターの位置
     with st.expander("ハンターの位置"):
         st.text(f"現在のマップ：{map}")
-        st.text(f"選択中スポーン位置：{st.session_state["spawn_h"]}")
         with st.container():
             if map=="永眠町":
                 with st.container(horizontal=True,horizontal_alignment="left"):
@@ -146,6 +145,7 @@ with st.expander("【作業中】スポーン記録(任意)"):
                         if st.button(f"{sp}",key=f"bu_{sp}"):
                             st.session_state["spawn_h"]=sp
         spawn_h=st.session_state["spawn_h"]
+        st.text(f"選択中スポーン位置：{spawn_h}")
 #サバイバーの位置
     with st.expander("サバイバーの位置"):
         st.text(f"現在のマップ：{map}")
