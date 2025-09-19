@@ -148,10 +148,11 @@ with st.expander("【作業中】スポーン記録(任意)"):
                     for sp in sp_list[6:9]:
                         if st.button(f"{sp}",key=f"bu_{sp}"):
                             st.session_state["spawn_h"]=sp
-        spawn_h=st.session_state["spawn_h"]
-        st.text(f"選択中スポーン位置：{spawn_h}")
         if st.button("スポーン位置をリセット"):
             st.session_state["spawn_h"]=""
+        spawn_h=st.session_state["spawn_h"]
+        st.text(f"選択中スポーン位置：{spawn_h}")
+        
 #サバイバーの位置
     with st.expander("サバイバーの位置"):
         st.text(f"現在のマップ：{map}")
