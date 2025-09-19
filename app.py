@@ -206,6 +206,7 @@ with st.expander("スポーン記録(任意)"):
                     if cnt>=5:
                         st.warning("スポーン位置が多すぎます")
                         st.session_state["spawn_s"]=[None,None,None,None]
+                        break
                     st.session_state["spawn_s"][cnt]=sp
                     cnt+=1
             spawn_s1=st.session_state["spawn_s"][0]
