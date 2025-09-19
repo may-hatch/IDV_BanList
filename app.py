@@ -15,8 +15,10 @@ key=os.getenv("SUPABASE_KEY")
 supabase=create_client(url,key)
 
 #マップ管理
-st.session_state["spawn_h"]=[0]
-st.session_state["spawn_s"]=[0,0,0,0]
+if "spawn_h" not in st.session_state:
+    st.session_state["spawn_h"]=[""]
+if "spawn_s" not in st.session_state:
+    st.session_state["spawn_s"]=["","","",""]
 
 
 #アプリ作成
@@ -41,7 +43,7 @@ with st.expander("使い方"):
     もしデータが集まったらマップなどを含めた確率順表示とかしようと思います
     
     更新履歴：
-    2025-09-19
+    2025-09-19（作業中）
     データ収集の進行に伴い更新。
     検索結果から１キャラ一致を削除
     マップを含めて優先順を付けた検索に仕様変更
@@ -78,19 +80,6 @@ with st.expander("BANされたサバイバーを３人記録"):
     ban2=sorted_ban[1]
     ban3=sorted_ban[2]
 
-#入力フォーム_スポーン位置
-#任意・試験的であることを明記
-with st.expander("【試験中】スポーン記録(任意)"):
-    #ハンターの位置
-    with st.container():
-        if map=="永眠町":
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7=st.columns(3)
-            sp8,sp9,sp10=st.columns(3)
-            st.session_state["spawn_h"] = st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9,sp10))
-
-
-
 #入力フォーム_対戦ハンター
 hunters={0: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
          6: '芸者', 7: '白黒無常', 8: '写真家', 9: '狂眼', 10: '黄衣の王',
@@ -110,6 +99,27 @@ with st.expander("BAN済みハンターを記録(任意)"):
     sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(x,x))
     banned_hunter1=sorted_ban[0]
     banned_hunter2=sorted_ban[1]
+
+#入力フォーム_スポーン位置
+#任意・試験的であることを明記
+with st.expander("【試験中】スポーン記録(任意)"):
+    #ハンターの位置
+    with st.container():
+        if map=="永眠町":
+            sp1,sp2,sp3,sp4=st.columns(4)
+            sp5,sp6,sp7=st.columns(3)
+            sp8,sp9,sp10=st.columns(3)
+            st.session_state["spawn_h"] = st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9,sp10))
+        elif map=="湖景村" or map=="月の河公園":
+            sp1,sp2,sp3,sp4=st.columns(4)
+            sp5,sp6,sp7,sp8=st.columns(4)
+            sp9,sp10,sp11,sp12=st.columns(4)
+            st.session_state["spawn_h"]=st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9,sp10,sp11,sp12))
+        else:
+            sp1,sp2,sp3=st.columns(3)
+            sp4,sp5,sp6=st.columns(3)
+            sp7,sp8,sp9=st.columns(3)
+            st.session_state["spawn_h"]=st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9))
 
 #データ表示
 if st.button("検索"):
