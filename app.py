@@ -164,25 +164,28 @@ with st.expander("【作業中】スポーン記録(任意)"):
     #ハンターの位置
     with st.container():
         if map=="永眠町":
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7=st.columns(3)
-            sp8,sp9,sp10=st.columns(3)
             for sp in sp_list[:11]:
                 if st.button(f"{sp}",key=f"{sp}"):
                     st.session_state["spaw_h"]=sp
+                    st.write(f"選択中のスポーン位置：{sp}")
+            sp1,sp2,sp3,sp4=st.columns(4)
+            sp5,sp6,sp7=st.columns(3)
+            sp8,sp9,sp10=st.columns(3)
 
         elif map=="湖景村" or map=="月の河公園":
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7,sp8=st.columns(4)
-            sp9,sp10,sp11,sp12=st.columns(4)
             for sp in sp_list:
                 if st.button(f"{sp}",key=f"{sp}"):
                     st.session_state["spaw_h"]=sp
+                    st.write(f"選択中のスポーン位置：{sp}")
+            sp1,sp2,sp3,sp4=st.columns(4)
+            sp5,sp6,sp7,sp8=st.columns(4)
+            sp9,sp10,sp11,sp12=st.columns(4)
 
         else:
-            sp1,sp2,sp3=st.columns(3)
-            sp4,sp5,sp6=st.columns(3)
-            sp7,sp8,sp9=st.columns(3)
             for sp in sp_list[:9]:
                 if st.button(f"{sp}",key=f"{sp}"):
                     st.session_state["spaw_h"]=sp
+                    st.write(f"選択中のスポーン位置：{sp}")
+            sp1,sp2,sp3=st.columns(3)
+            sp4,sp5,sp6=st.columns(3)
+            sp7,sp8,sp9=st.columns(3)
