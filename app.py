@@ -203,7 +203,7 @@ with st.expander("スポーン記録(任意)"):
             cnt=0
             for sp in sp_list:
                 if st.session_state.get(f"checkBox_{sp}",False)==True:
-                    if cnt>=5:
+                    if cnt>=4:
                         st.warning("スポーン位置が多すぎます")
                         st.session_state["spawn_s"]=[None,None,None,None]
                         break
