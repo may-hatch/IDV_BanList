@@ -103,9 +103,8 @@ with st.expander("BANしたハンターを記録（任意）"):
     banned_hunter2=sorted_ban[1]
 
 #入力フォーム_スポーン位置
-#任意・試験的であることを明記
-with st.expander("【作業中】スポーン記録(任意)"):
-    #ハンターの位置
+with st.expander("スポーン記録(任意)"):
+#ハンターの位置
     with st.expander("ハンターの位置"):
         st.text(f"現在のマップ：{map}")
         with st.container():
@@ -151,8 +150,7 @@ with st.expander("【作業中】スポーン記録(任意)"):
         if st.button("スポーン位置をリセット"):
             st.session_state["spawn_h"]=""
         spawn_h=st.session_state["spawn_h"]
-        st.text(f"選択中スポーン位置：{spawn_h}")
-        
+        st.text(f"選択中スポーン位置：{spawn_h}")        
 #サバイバーの位置
     with st.expander("サバイバーの位置"):
         st.text(f"現在のマップ：{map}")
@@ -205,6 +203,9 @@ with st.expander("【作業中】スポーン記録(任意)"):
             cnt=0
             for sp in sp_list:
                 if st.session_state.get(f"checkBox_{sp}",False)==True:
+                    if cnt>=5:
+                        st.warning("スポーン位置が多すぎます")
+                        st.session_state["spawn_s"]=[None,None,None,None]
                     st.session_state["spawn_s"][cnt]=sp
                     cnt+=1
             spawn_s1=st.session_state["spawn_s"][0]
@@ -281,7 +282,10 @@ if st.button("記録"):
             "banned_hunter1":banned_hunter1,
             "banned_hunter2":banned_hunter2,
             "spawn_h":spawn_h,
-            #"spawn_s":spawn_s
+            "spawn_s1":spawn_s1,
+            "spawn_s2":spawn_s2,
+            "spawn_s3":spawn_s3,
+            "spawn_s4":spawn_s4
             }).execute()
         st.success("記録完了")
     else:
