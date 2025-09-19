@@ -20,6 +20,7 @@ if "spawn_h" not in st.session_state:
 if "spawn_s" not in st.session_state:
     st.session_state["spawn_s"]=["","","",""]
 
+sp_list=["sp1","sp2","sp3","sp4","sp5","sp6","sp7","sp8","sp9","sp10","sp11","sp12"]
 
 #アプリ作成
 #アプリ名
@@ -39,15 +40,14 @@ with st.expander("使い方"):
     「記録」を押すと、そこまでに入力した情報が記録されます。
     ※記録されたデータは次回以降の検索に使われます。
 
-    今はただ一覧を表示するようになってますが、
-    もしデータが集まったらマップなどを含めた確率順表示とかしようと思います
+    今はただ一覧を表示するようになってます
     
-    更新履歴：
+    更新予定：
     2025-09-19（作業中）
     データ収集の進行に伴い更新。
-    検索結果から１キャラ一致を削除
-    マップを含めて優先順を付けた検索に仕様変更
-    記録項目（任意）にスポーン選択を追加
+    o検索結果から１キャラ一致を削除
+    xマップを含めて優先順を付けた検索に仕様変更
+    x記録項目（任意）にスポーン選択を追加
     """)
 
 #入力フォーム_段位
@@ -99,27 +99,6 @@ with st.expander("BAN済みハンターを記録(任意)"):
     sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(x,x))
     banned_hunter1=sorted_ban[0]
     banned_hunter2=sorted_ban[1]
-
-#入力フォーム_スポーン位置
-#任意・試験的であることを明記
-with st.expander("【試験中】スポーン記録(任意)"):
-    #ハンターの位置
-    with st.container():
-        if map=="永眠町":
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7=st.columns(3)
-            sp8,sp9,sp10=st.columns(3)
-            st.session_state["spawn_h"] = st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9,sp10))
-        elif map=="湖景村" or map=="月の河公園":
-            sp1,sp2,sp3,sp4=st.columns(4)
-            sp5,sp6,sp7,sp8=st.columns(4)
-            sp9,sp10,sp11,sp12=st.columns(4)
-            st.session_state["spawn_h"]=st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9,sp10,sp11,sp12))
-        else:
-            sp1,sp2,sp3=st.columns(3)
-            sp4,sp5,sp6=st.columns(3)
-            sp7,sp8,sp9=st.columns(3)
-            st.session_state["spawn_h"]=st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9))
 
 #データ表示
 if st.button("検索"):
@@ -177,3 +156,30 @@ if st.button("記録"):
         st.success("記録完了")
     else:
         st.warning("未入力の項目があります")
+
+
+#入力フォーム_スポーン位置
+#任意・試験的であることを明記
+with st.expander("【作業中】スポーン記録(任意)"):
+    #ハンターの位置
+    with st.container():
+        if map=="永眠町":
+            for sp in sp_list[:11]:
+                if st.button(f"{sp}",key=f"{sp}"):
+                    st.session_state["spaw_h"]=sp
+            #sp1,sp2,sp3,sp4=st.columns(4)
+            #sp5,sp6,sp7=st.columns(3)
+            #sp8,sp9,sp10=st.columns(3)
+
+        elif map=="湖景村" or map=="月の河公園":
+            for sp in sp_list:
+                if st.button(f"{sp}",key=f"{sp}"):
+                    st.session_state["spaw_h"]=sp
+            #sp1,sp2,sp3,sp4=st.columns(4)
+            #sp5,sp6,sp7,sp8=st.columns(4)
+            #sp9,sp10,sp11,sp12=st.columns(4)
+            #st.session_state["spawn_h"]=st.radio("ハンタースポーン",(sp1,sp2,sp3,sp4,sp5,sp6,sp7,sp8,sp9,sp10,sp11,sp12))
+        else:
+            for sp in sp_list[:9]:
+                if st.button(f"{sp}",key=f"{sp}"):
+                    st.session_state["spaw_h"]=sp
