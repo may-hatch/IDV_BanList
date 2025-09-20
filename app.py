@@ -210,12 +210,12 @@ with st.expander("スポーン記録(任意)"):
                         break
                     st.session_state["spawn_s"][cnt]=sp
                     cnt+=1
-            spawn_s1=st.session_state["spawn_s"][0]
-            spawn_s2=st.session_state["spawn_s"][1]
-            spawn_s3=st.session_state["spawn_s"][2]
-            spawn_s4=st.session_state["spawn_s"][3]
             if cnt==4:
                 st.success(f"スポーンを確定しました：{st.session_state["spawn_s"]}")
+        spawn_s1=st.session_state["spawn_s"][0]
+        spawn_s2=st.session_state["spawn_s"][1]
+        spawn_s3=st.session_state["spawn_s"][2]
+        spawn_s4=st.session_state["spawn_s"][3]
 
 
 #データ表示
