@@ -42,13 +42,12 @@ with st.expander("使い方"):
     「ハンターから検索」を押すと、過去にそのハンターがどんなBANをしたかの記録が表示されます。
     
     【更新】
-    2025-09-19-14:00
-    検索結果から１キャラ一致を削除。
-    検索結果の表でマップを表示。
-    ハンターから逆引きするボタンを設置。
-    記録項目（任意）にスポーン選択を追加。
+    2025-09-24-22:22
+    ハンター３BAN用の記録欄を増設。
+    補足：現在約110試合分とれてます。
              
     【更新予定】
+    全記録からの統計表示：ハンターのピック率など。
     段位を考慮して表示(私の段位が上がれば…)
     """)
 
@@ -96,11 +95,13 @@ hunter=st.selectbox("対戦ハンターを選択（必須）",options=list(hunte
 with st.expander("BANしたハンターを記録（任意）"):
     banned_hunterA=st.selectbox("1人目のBAN済ハンター",options=list(hunters.values()))
     banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
+    banned_hunterC=st.selectbox("3人目のBAN済ハンター",options=list(hunters.values()))
 #並べ替え
-    selected_hunter=[banned_hunterA,banned_hunterB]
+    selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
     sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(x,x))
     banned_hunter1=sorted_ban[0]
     banned_hunter2=sorted_ban[1]
+    banned_hunter3=sorted_ban[2]
 
 #入力フォーム_スポーン位置
 with st.expander("スポーン記録(任意)"):
