@@ -285,6 +285,7 @@ if st.button("記録"):
             "hunter":hunter,
             "banned_hunter1":banned_hunter1,
             "banned_hunter2":banned_hunter2,
+            "banned_hunter3":banned_hunter3,
             "spawn_h":spawn_h,
             "spawn_s1":spawn_s1,
             "spawn_s2":spawn_s2,
