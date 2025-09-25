@@ -75,8 +75,8 @@ if st.button("統計を表示（テスト中）"):
     #pandasでつくって表示
     df = pd.DataFrame({
         "ハンター": list(hunter_ratio.keys()),
-        "割合(％)": list(hunter_ratio.values())
-    }).dropna().query("ハンター != ''").sort_values("割合(％)", ascending=False)
+        "記録数": list(sorted_by_cnt.values())
+    }).dropna().query("ハンター != ''").sort_values("記録数", ascending=False)
     st.bar_chart(df.set_index("ハンター"))
     
 #pltでグラフ描画
