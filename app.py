@@ -61,7 +61,7 @@ map=st.selectbox("マップを選択（必須）",options=maps)
 #入力フォーム_サバイバー
 #見やすさのためにたたむ
 with st.expander("BANされたサバイバーを記録（必須）"):
-    survivors= {0: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
+    survivors= {999: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
                 6: '冒険家', 7: '傭兵', 8: '空軍', 9: '祭司', 10: '機械技師',
                 11: 'オフェンス', 12: '心眼', 13: '調香師', 14: 'カウボーイ', 15: '踊り子',
                 16: '占い師', 17: '納棺師', 18: '探鉱者', 19: '呪術師', 20: '野人',
@@ -75,14 +75,15 @@ with st.expander("BANされたサバイバーを記録（必須）"):
     banB=st.selectbox("2人目のBAN済サバイバー",options=list(survivors.values()))
     banC=st.selectbox("3人目のBAN済サバイバー",options=list(survivors.values()))
 #書き込む前に並べ替え
+    name_to_id_s={v_s:k_s for k_s,v_s in survivors.items()}
     selected_survivor=[banA,banB,banC]
-    sorted_ban=sorted(selected_survivor,key=lambda x:survivors.get(x,x))
+    sorted_ban=sorted(selected_survivor,key=lambda x:name_to_id_s.get(x,999))
     ban1=sorted_ban[0]
     ban2=sorted_ban[1]
     ban3=sorted_ban[2]
 
 #入力フォーム_対戦ハンター
-hunters={0: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
+hunters={999: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
          6: '芸者', 7: '白黒無常', 8: '写真家', 9: '狂眼', 10: '黄衣の王',
          11: '夢の魔女', 12: '泣き虫', 13: '魔トカゲ', 14: '血の女王', 15: 'ガードNo.26',
          16: '「使徒」', 17: 'ヴァイオリニスト', 18: '彫刻師', 19: '「アンデッド」', 20: '破輪',
@@ -97,8 +98,9 @@ with st.expander("BANしたハンターを記録（任意）"):
     banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
     banned_hunterC=st.selectbox("3人目のBAN済ハンター",options=list(hunters.values()))
 #並べ替え
+    name_to_id_h={v_h:k_h for k_h,v_h in survivors.items()}
     selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
-    sorted_ban=sorted(selected_hunter,key=lambda x:hunters.get(x,x))
+    sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
     banned_hunter1=sorted_ban[0]
     banned_hunter2=sorted_ban[1]
     banned_hunter3=sorted_ban[2]
