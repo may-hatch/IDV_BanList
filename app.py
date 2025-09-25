@@ -54,7 +54,7 @@ with st.expander("使い方"):
     """)
 
 #統計表示
-if st.button("統計を表示（テスト中）"):
+if st.button("統計を表示（）"):
     response_all=supabase.table("BannedCharaList").select("hunter").execute()
     records_all=response_all.data
 
@@ -65,19 +65,19 @@ if st.button("統計を表示（テスト中）"):
     hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
 
 #ハンター名と割合を並び替えたリストに変換
-sorted_items = sorted(hunter_ratio.items(), key=lambda x: x[1], reverse=True)
-labels = [item[0] for item in sorted_items]
-values = [item[1] for item in sorted_items]
+    sorted_items = sorted(hunter_ratio.items(), key=lambda x: x[1], reverse=True)
+    labels = [item[0] for item in sorted_items]
+    values = [item[1] for item in sorted_items]
 
 # グラフ描画
-fig, ax = plt.subplots()
-ax.bar(labels, values)
-ax.set_ylabel("割合（％）")
-ax.set_title("ハンター遭遇率")
-plt.xticks(rotation=45)
+    fig, ax = plt.subplots()
+    ax.bar(labels, values)
+    ax.set_ylabel("割合（％）")
+    ax.set_title("ハンター遭遇率")
+    plt.xticks(rotation=45)
 
 # Streamlitで表示
-st.pyplot(fig)
+    st.pyplot(fig)
 
 
 #    df=pd.DataFrame({
