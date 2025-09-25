@@ -63,8 +63,7 @@ if st.button("統計を表示（テスト中）"):
     total=sum(hunter_counts.values())
     sorted_by_cnt={k:v for k,v in hunter_counts.items()}
     hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
-
-#ハンター名と割合を並び替えたリストに変換
+    #ハンター名と割合を並び替えたリストに変換
     sorted_items = sorted(sorted_by_cnt.items(), key=lambda x: x[1], reverse=True)
     labels = [item[0] for item in sorted_items]
     values = [item[1] for item in sorted_items]
@@ -73,7 +72,13 @@ if st.button("統計を表示（テスト中）"):
     st.write("【遭遇率上位3キャラ】")
     for si in sorted_items[:3]:
         st.write(f"{si[0]}：{si[1]}試合({si[1]/total}%)")
-
+    #pandasでつくって表示
+    df=pd.DataFrame({
+        "ハンター":list(hunter_ratio.keys()),
+        "割合(％)":list(hunter_ratio.values())
+    }).sort_values("割合(％)",ascending=False)
+    st.bar_chart(df.set_index("ハンター"))
+    
 #pltでグラフ描画
 #    fig, ax = plt.subplots()
 #    ax.bar(labels, values)
@@ -83,12 +88,6 @@ if st.button("統計を表示（テスト中）"):
 # Streamlitで表示
 #    st.pyplot(fig)
 
-#pandasでつくって表示
-    df=pd.DataFrame({
-        "ハンター":list(hunter_ratio.keys()),
-        "割合(％)":list(hunter_ratio.values())
-    }).sort_values("割合(％)",ascending=False)
-    st.bar_chart(df.set_index("ハンター"))
     
 #入力フォーム_段位
 rank=st.selectbox("段位を選択",options=["5","6","7"])
