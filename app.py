@@ -68,7 +68,9 @@ if st.button("統計を表示（テスト中）"):
     sorted_items = sorted(hunter_ratio.items(), key=lambda x: x[1], reverse=True)
     labels = [item[0] for item in sorted_items]
     values = [item[1] for item in sorted_items]
-    st.write(labels)
+    
+    st.write(f"総記録件数：{total}件")
+    st.write(labels,values)
 
 #pltでグラフ描画
 #    fig, ax = plt.subplots()
@@ -84,7 +86,6 @@ if st.button("統計を表示（テスト中）"):
 #        "ハンター":list(hunter_ratio.keys()),
 #        "割合(％)":list(hunter_ratio.values())
 #    }).sort_values("割合(％)",ascending=False)
-#    st.write(f"総記録件数：{total}件")
 #    st.bar_chart(df.set_index("ハンター"))
     
 #入力フォーム_段位
