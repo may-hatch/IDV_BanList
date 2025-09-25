@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import os
 from collections import Counter
 import pandas as pd
+import matplotlib.pyplot as plt
 import streamlit as st
 
 #supabaseにつなげる
@@ -44,17 +45,16 @@ with st.expander("使い方"):
     「ハンターから検索」を押すと、過去にそのハンターがどんなBANをしたかの記録が表示されます。
     
     【更新】
-    2025-09-24-22:22
-    ハンター３BAN用の記録欄を増設。
-    補足：現在約110試合分とれてます。
+    2025-09-25-11:30
+    記録時のソート方法を更新。
+    統計表示ボタンを追加。
              
     【更新予定】
-    全記録からの統計表示：ハンターのピック率など。
     段位を考慮して表示(私の段位が上がれば…)
     """)
 
 #統計表示
-if st.button("統計を表示"):
+if st.button("統計を表示（テスト中）"):
     response_all=supabase.table("BannedCharaList").select("hunter").execute()
     records_all=response_all.data
 
@@ -64,12 +64,28 @@ if st.button("統計を表示"):
     total=sum(hunter_counts.values())
     hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
 
-    df=pd.DataFrame({
-        "ハンター":list(hunter_ratio.keys()),
-        "割合(％)":list(hunter_ratio.values())
-    }).sort_values("割合(％)",ascending=False)
-    st.write(f"総記録件数：{total}件")
-    st.bar_chart(df.set_index("ハンター"))
+#ハンター名と割合を並び替えたリストに変換
+sorted_items = sorted(hunter_ratio.items(), key=lambda x: x[1], reverse=True)
+labels = [item[0] for item in sorted_items]
+values = [item[1] for item in sorted_items]
+
+# グラフ描画
+fig, ax = plt.subplots()
+ax.bar(labels, values)
+ax.set_ylabel("割合（％）")
+ax.set_title("ハンター遭遇率")
+plt.xticks(rotation=45)
+
+# Streamlitで表示
+st.pyplot(fig)
+
+
+#    df=pd.DataFrame({
+#        "ハンター":list(hunter_ratio.keys()),
+#        "割合(％)":list(hunter_ratio.values())
+#    }).sort_values("割合(％)",ascending=False)
+#    st.write(f"総記録件数：{total}件")
+#    st.bar_chart(df.set_index("ハンター"))
     
 #入力フォーム_段位
 rank=st.selectbox("段位を選択",options=["5","6","7"])
