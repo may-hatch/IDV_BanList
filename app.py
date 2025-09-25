@@ -71,7 +71,7 @@ if st.button("統計を表示（テスト中）"):
     st.write(f"総記録件数：{total}件")
     st.write("【遭遇率上位3キャラ】")
     for si in sorted_items[:3]:
-        st.write(f"{si[0]}：{si[1]}試合({si[1]/total}%)")
+        st.write(f"{si[0]}：{si[1]}試合({round(si[1]/total*100,2)}%)")
     #pandasでつくって表示
     df=pd.DataFrame({
         "ハンター":list(hunter_ratio.keys()),
