@@ -98,7 +98,7 @@ with st.expander("BANしたハンターを記録（任意）"):
     banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
     banned_hunterC=st.selectbox("3人目のBAN済ハンター",options=list(hunters.values()))
 #並べ替え
-    name_to_id_h={v_h:k_h for k_h,v_h in survivors.items()}
+    name_to_id_h={v_h:k_h for k_h,v_h in hunters.items()}
     selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
     sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
     banned_hunter1=sorted_ban[0]
