@@ -1,12 +1,14 @@
 """
 ランク戦ban管理
 作成日：2025/09/03
-更新日(1)：2025/09/19
 """
 import streamlit as st
 from supabase import create_client
 from dotenv import load_dotenv
 import os
+from collections import Counter
+import pandas as pd
+import streamlit as st
 
 #supabaseにつなげる
 load_dotenv()
@@ -50,6 +52,26 @@ with st.expander("使い方"):
     全記録からの統計表示：ハンターのピック率など。
     段位を考慮して表示(私の段位が上がれば…)
     """)
+
+#統計表示
+if st.button("統計を表示"):
+    response_all=supabase.table("BannedCharaList").select("hunter").execute()
+    records_all=response_all.data
+
+    hunter_list=[]
+    for record in records_all:
+        hunter_list.append(record)
+    hunter_counts=Counter(hunter_list)
+    
+    total=sum(hunter_counts.values())
+    hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
+
+    df=pd.DataFrame({
+        "ハンター":list(hunter_ratio.keys()),
+        "割合(％)":list(hunter_ratio.values())
+    }).sort_values("割合(％)",ascending=False)
+    st.bar_chart(df.set_index("ハンター"))
+    st.pyplot(df.set_index("ハンター")["割合(％)"].plot.pie(autopct="%.1f%%").figure)
 
 #入力フォーム_段位
 rank=st.selectbox("段位を選択",options=["5","6","7"])
@@ -219,7 +241,6 @@ with st.expander("スポーン記録(任意)"):
         spawn_s2=st.session_state["spawn_s"][1]
         spawn_s3=st.session_state["spawn_s"][2]
         spawn_s4=st.session_state["spawn_s"][3]
-
 
 #データ表示
 #サバイバーからハンターを検索
