@@ -71,7 +71,7 @@ if st.button("統計を表示"):
         "割合(％)":list(hunter_ratio.values())
     }).sort_values("割合(％)",ascending=False)
     st.bar_chart(df.set_index("ハンター"))
-    st.pyplot(df.set_index("ハンター")["割合(％)"].plot.pie(autopct="%.1f%%").figure)
+    #st.pyplot(df.set_index("ハンター")["割合(％)"].plot.pie(autopct="%.1f%%").figure)
 
 #入力フォーム_段位
 rank=st.selectbox("段位を選択",options=["5","6","7"])
