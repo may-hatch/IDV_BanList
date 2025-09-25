@@ -73,10 +73,10 @@ if st.button("統計を表示（テスト中）"):
     for si in sorted_items[:3]:
         st.write(f"{si[0]}：{si[1]}試合({round(si[1]/total*100,2)}%)")
     #pandasでつくって表示
-    df=pd.DataFrame({
-        "ハンター":list(hunter_ratio.keys()),
-        "割合(％)":list(hunter_ratio.values())
-    }).sort_values("割合(％)",ascending=False)
+    df = pd.DataFrame({
+        "ハンター": list(hunter_ratio.keys()),
+        "割合(％)": list(hunter_ratio.values())
+    }).dropna().query("ハンター != ''").sort_values("割合(％)", ascending=False)
     st.bar_chart(df.set_index("ハンター"))
     
 #pltでグラフ描画
