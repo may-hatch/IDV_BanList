@@ -58,9 +58,7 @@ if st.button("統計を表示"):
     response_all=supabase.table("BannedCharaList").select("hunter").execute()
     records_all=response_all.data
 
-    hunter_list=[]
-    for record in records_all:
-        hunter_list.append(record)
+    hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
     hunter_counts=Counter(hunter_list)
     
     total=sum(hunter_counts.values())
