@@ -54,25 +54,25 @@ with st.expander("使い方"):
 
 #統計表示
 if st.button("統計を表示（テスト中）"):
-#    response_all=supabase.table("BannedCharaList").select("hunter").execute()
-#    records_all=response_all.data
+    response_all=supabase.table("BannedCharaList").select("hunter").execute()
+    records_all=response_all.data
 
-#    hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
-#    hunter_counts=Counter(hunter_list)
+    hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
+    hunter_counts=Counter(hunter_list)
     
-#    total=sum(hunter_counts.values())
-#    sorted_by_cnt={k:v for k,v in hunter_counts.items()}
-#    hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
+    total=sum(hunter_counts.values())
+    sorted_by_cnt={k:v for k,v in hunter_counts.items()}
+    hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
 
 #ハンター名と割合を並び替えたリストに変換
-#    sorted_items = sorted(sorted_by_cnt.items(), key=lambda x: x[1], reverse=True)
-#    labels = [item[0] for item in sorted_items]
-#    values = [item[1] for item in sorted_items]
+    sorted_items = sorted(sorted_by_cnt.items(), key=lambda x: x[1], reverse=True)
+    labels = [item[0] for item in sorted_items]
+    values = [item[1] for item in sorted_items]
     
-#    st.write(f"総記録件数：{total}件")
-#    st.write("【遭遇率上位3キャラ】")
-#    for si in sorted_items[:3]:
-#        st.write(f"{si[0]}：{si[1]}試合({si[1]/total}%)")
+    st.write(f"総記録件数：{total}件")
+    st.write("【遭遇率上位3キャラ】")
+    for si in sorted_items[:3]:
+        st.write(f"{si[0]}：{si[1]}試合({si[1]/total}%)")
 
 #pltでグラフ描画
 #    fig, ax = plt.subplots()
