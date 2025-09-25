@@ -70,7 +70,7 @@ if st.button("統計を表示（テスト中）"):
     values = [item[1] for item in sorted_items]
     
     st.write(f"総記録件数：{total}件")
-    st.write(labels,values)
+    st.write(labels[:4])
 
 #pltでグラフ描画
 #    fig, ax = plt.subplots()
