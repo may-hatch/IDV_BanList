@@ -28,6 +28,11 @@ if "banned_s" not in st.session_state:
 ban1=st.session_state["banned_s"][0]
 ban2=st.session_state["banned_s"][1]
 ban3=st.session_state["banned_s"][2]
+if "banned_hunter" not in st.session_state:
+    st.session_state["banned_h"]=[None]*3
+banned_hunter1=st.session_state["banned_h"][0]
+banned_hunter2=st.session_state["banned_h"][1]
+banned_hunter3=st.session_state["banned_h"][2]
 
 #マップ記録用
 if "choosed_map" not in st.session_state:
@@ -228,10 +233,10 @@ with tab1:
         #並べ替え
             name_to_id_h={v_h:k_h for k_h,v_h in hunters.items()}
             selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
-            sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
-            banned_hunter1=sorted_ban[0]
-            banned_hunter2=sorted_ban[1]
-            banned_hunter3=sorted_ban[2]
+            st.session_state["banned_h"]=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
+            banned_hunter1=st.session_state["banned_h"][0]
+            banned_hunter2=st.session_state["banned_h"][1]
+            banned_hunter3=st.session_state["banned_h"][2]
 
     #入力フォーム_スポーン位置
     with st.expander("スポーン記録(任意)"):
