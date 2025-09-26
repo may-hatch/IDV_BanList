@@ -41,6 +41,12 @@ if "spawn_h" not in st.session_state:
     st.session_state["spawn_h"]=None
 if "spawn_s" not in st.session_state:
     st.session_state["spawn_s"]=[None]*4
+spawn_s1=st.session_state["spawn_s"][0]
+spawn_s2=st.session_state["spawn_s"][1]
+spawn_s3=st.session_state["spawn_s"][2]
+spawn_s4=st.session_state["spawn_s"][3]
+spawn_h=st.session_state["spawn_h"]
+
 
 maps=["","軍需工場","赤の教会","聖心病院","湖景村","月の河公園","レオの思い出","永眠町","中華街","罪の森"]
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
