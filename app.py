@@ -18,89 +18,15 @@ supabase=create_client(url,key)
 
 #マップ管理
 if "spawn_h" not in st.session_state:
-    st.session_state["spawn_h"]=[""]
+    st.session_state["spawn_h"]=[None]
 
 if "spawn_s" not in st.session_state:
     st.session_state["spawn_s"]=[None]*4
 
+maps=["","軍需工場","赤の教会","聖心病院","湖景村","月の河公園","レオの思い出","永眠町","中華街","罪の森"]
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
 
-#アプリ作成
-#アプリ名
-st.title("BAN記録/検索")
-
-with st.expander("使い方"):
-    st.write("""
-    【目的】
-    五段以上の鯖３BANを想定した記録フォームです。
-
-    サバイバー段位(最高峰は7)、BANされたキャラ、マップ、ハンターを選択してください。
-    
-    必須項目を入力後「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
-    ２キャラのみ一致の場合は、マップが一致しているハンターが先に表示されます。
-    
-    入力後に「記録」を押すと、そこまでに入力した情報が記録されます。
-
-    「ハンターから検索」を押すと、過去にそのハンターがどんなBANをしたかの記録が表示されます。
-    
-    【更新】
-    2025-09-26-00:00
-            統計ボタンの動作確認完了。
-            全記録のうちどのハンターとどれくらい会ったかを見られます。
-             
-    【更新予定】
-    １：各マップのピック率
-    ２：スポーン位置ごとのハンター（位置記録が50件乗ったら）
-    """)
-
-#統計表示
-if st.button("統計を表示"):
-    response_all=supabase.table("BannedCharaList").select("hunter").execute()
-    records_all=response_all.data
-
-    hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
-    hunter_counts=Counter(hunter_list)
-    
-    total=sum(hunter_counts.values())
-    sorted_by_cnt={k:v for k,v in hunter_counts.items()}
-    hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
-    #ハンター名と割合を並び替えたリストに変換
-    sorted_items = sorted(sorted_by_cnt.items(), key=lambda x: x[1], reverse=True)
-    labels = [item[0] for item in sorted_items]
-    values = [item[1] for item in sorted_items]
-    
-    st.write(f"総記録件数：{total}件")
-    st.write("【遭遇率上位3キャラ】")
-    for si in sorted_items[:3]:
-        st.write(f"{si[0]}：{si[1]}試合({round(si[1]/total*100,2)}%)")
-    #pandasでつくって表示
-    df = pd.DataFrame({
-        "ハンター": list(hunter_ratio.keys()),
-        "記録数": list(sorted_by_cnt.values())
-    }).dropna().query("ハンター != ''").sort_values("記録数", ascending=False)
-    st.bar_chart(df.set_index("ハンター"))
-    
-#pltでグラフ描画
-#    fig, ax = plt.subplots()
-#    ax.bar(labels, values)
-#    ax.set_ylabel("割合（％）")
-#    ax.set_title("ハンター遭遇率")
-#    plt.xticks(rotation=45)
-# Streamlitで表示
-#    st.pyplot(fig)
-
-    
-#入力フォーム_段位
-rank=st.selectbox("段位を選択",options=["5","6","7"])
-
-#入力フォーム_マップ
-maps=["","軍需工場","赤の教会","聖心病院","湖景村","月の河公園","レオの思い出","永眠町","中華街","罪の森"]
-map=st.selectbox("マップを選択（必須）",options=maps)
-
-#入力フォーム_サバイバー
-#見やすさのためにたたむ
-with st.expander("BANされたサバイバーを記録（必須）"):
-    survivors= {999: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
+survivors= {999: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
                 6: '冒険家', 7: '傭兵', 8: '空軍', 9: '祭司', 10: '機械技師',
                 11: 'オフェンス', 12: '心眼', 13: '調香師', 14: 'カウボーイ', 15: '踊り子',
                 16: '占い師', 17: '納棺師', 18: '探鉱者', 19: '呪術師', 20: '野人',
@@ -110,18 +36,7 @@ with st.expander("BANされたサバイバーを記録（必須）"):
                 36: '教授', 37: '骨董商', 38: '作曲家', 39: '記者', 40: '航空エンジニア',
                 41: '応援団', 42: '人形師', 43: '火災調査員', 44: '｢レディ・ファウロ｣', 45: '｢騎士｣',
                 46: '気象学者', 47: '弓使い', 48: '｢脱出マスター｣', 49: '幸運児'}
-    banA=st.selectbox("1人目のBAN済サバイバー",options=list(survivors.values()))
-    banB=st.selectbox("2人目のBAN済サバイバー",options=list(survivors.values()))
-    banC=st.selectbox("3人目のBAN済サバイバー",options=list(survivors.values()))
-#書き込む前に並べ替え
-    name_to_id_s={v_s:k_s for k_s,v_s in survivors.items()}
-    selected_survivor=[banA,banB,banC]
-    sorted_ban=sorted(selected_survivor,key=lambda x:name_to_id_s.get(x,999))
-    ban1=sorted_ban[0]
-    ban2=sorted_ban[1]
-    ban3=sorted_ban[2]
 
-#入力フォーム_対戦ハンター
 hunters={999: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
          6: '芸者', 7: '白黒無常', 8: '写真家', 9: '狂眼', 10: '黄衣の王',
          11: '夢の魔女', 12: '泣き虫', 13: '魔トカゲ', 14: '血の女王', 15: 'ガードNo.26',
@@ -129,209 +44,343 @@ hunters={999: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッ�
          21: '漁師', 22: '蝋人形師', 23: '「悪夢」', 24: '書記官', 25: '隠者',
          26: '夜の番人', 27: 'オペラ歌手', 28: '「フールズ・ゴールド」', 29: '時空の影', 30: '「足萎えの羊」',
          31: '「フラバルー」', 32: '雑貨商', 33: '「ビリヤードプレイヤー」'} 
-hunter=st.selectbox("対戦ハンターを選択（必須）",options=list(hunters.values()))
-#入力フォーム_BAN済ハンター
-#BAN済ハンターは任意なのでたたむ
-with st.expander("BANしたハンターを記録（任意）"):
-    banned_hunterA=st.selectbox("1人目のBAN済ハンター",options=list(hunters.values()))
-    banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
-    banned_hunterC=st.selectbox("3人目のBAN済ハンター",options=list(hunters.values()))
-#並べ替え
-    name_to_id_h={v_h:k_h for k_h,v_h in hunters.items()}
-    selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
-    sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
-    banned_hunter1=sorted_ban[0]
-    banned_hunter2=sorted_ban[1]
-    banned_hunter3=sorted_ban[2]
 
-#入力フォーム_スポーン位置
-with st.expander("スポーン記録(任意)"):
-#ハンターの位置
-    with st.expander("ハンターの位置"):
-        st.text(f"現在のマップ：{map}")
-        with st.container():
-            if map=="永眠町":
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[:4]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[4:7]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[7:10]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-            elif map=="湖景村" or map=="月の河公園":
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[:4]:    
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[4:8]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[8:]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-            else:
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[:3]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[3:6]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[6:9]:
-                        if st.button(f"{sp}",key=f"bu_{sp}"):
-                            st.session_state["spawn_h"]=sp
-        if st.button("スポーン位置をリセット"):
-            st.session_state["spawn_h"]=""
-        spawn_h=st.session_state["spawn_h"]
-        st.text(f"選択中スポーン位置：{spawn_h}")        
-#サバイバーの位置
-    with st.expander("サバイバーの位置"):
-        st.text(f"現在のマップ：{map}")
-        with st.container():
-            if map=="永眠町":
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[:4]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[4:7]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[7:10]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                st.session_state["checkBox_11"]=False
-                st.session_state["checkBox_12"]=False
-            elif map=="湖景村" or map=="月の河公園":
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[:4]:    
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[4:8]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[8:]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-            else:
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[:3]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[3:6]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                with st.container(horizontal=True,horizontal_alignment="left"):
-                    for sp in sp_list[6:9]:
-                        key = f"checkBox_{sp}"
-                        st.checkbox("",key=key)
-                st.session_state["checkBox_10"]=False
-                st.session_state["checkBox_11"]=False
-                st.session_state["checkBox_12"]=False
-        if st.button("スポーンを確定"):    
-            cnt=0
-            for sp in sp_list:
-                if st.session_state.get(f"checkBox_{sp}",False)==True:
-                    if cnt>=4:
-                        st.warning("スポーン位置が多すぎます")
-                        st.session_state["spawn_s"]=[None,None,None,None]
+#アプリ作成
+#アプリ名
+st.title("BAN記録/検索")
+
+tab1,tab2,tab3,tab4=st.tabs(["記録","検索","統計","使い方"])
+
+#使い方
+with tab4:
+    st.text("""
+    五段以上の鯖３BANを想定した記録フォームです。
+
+    【使い方：記録タブ】
+    サバイバー段位(最高峰は7)、BANされたキャラ、マップ、ハンターを必ず選択してください。
+    入力後に「記録」を押すと、そこまでに入力した情報が記録されます。
+        ※記録ボタンを押さないと反映されません！
+
+    【使い方：検索タブ】
+    記録タブでサバイバーを入力後、「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
+    ２キャラのみ一致の場合は、マップが一致しているハンターが先に表示されます。
+        ※マップ未入力でも検索できます
+    「ハンターから検索」を押すと、記録タブで選択しているハンターのBAN記録が表示されます。
+    
+    【使い方：統計タブ】
+    統計を表示ボタンを押すと、ボタンが押される直前までに記録された情報の
+        総件数
+        ハンター別件数
+        マップ別ハンター件数
+    が確認できます。
+        ※スポーンはデータも少なく、まだ調整中です
+            左から右、上から下に番号を振っているので、見たい人は手動で見てください
+            （永眠町は墓が04、正門ゲート前が05です）
+
+    【更新】
+    2025-09-26-00:00
+            統計ボタンの動作確認完了。
+            全記録のうちどのハンターとどれくらい会ったかを見られます。
+    2025-09-26-12:00
+        ★全体：
+            タブ分割に伴い表示を調整
+        ★記録タブ：
+            一部項目の内部挙動を変更。
+        ★検索タブ：
+            タブ分割に伴い表示を調整
+        ★統計タブ：
+            マップごとの遭遇数を表示。
+            スポーン記録済みハンターのスポーン位置を仮実装。
+             
+    【更新予定】
+    未定
+    """)
+
+#統計表示
+with tab3:
+    if st.button("統計を表示"):
+        response_all=supabase.table("BannedCharaList").select("map","hunter","spawn_h").execute()
+        records_all=response_all.data
+
+        hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
+        hunter_counts=Counter(hunter_list)
+        map_list=[rec["map"] for rec in records_all if rec["map"]]
+        map_counts=Counter(map_list)
+        
+        total=sum(hunter_counts.values())
+        sorted_by_cnt={k:v for k,v in hunter_counts.items()}
+        hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
+        #ハンター名と割合を並び替えたリストに変換
+        sorted_items = sorted(sorted_by_cnt.items(), key=lambda x: x[1], reverse=True)
+        labels = [item[0] for item in sorted_items]
+        values = [item[1] for item in sorted_items]
+        
+        df = pd.DataFrame({
+            "ハンター": list(hunter_ratio.keys()),
+            "記録数":[f"{svc}試合" for svc in sorted_by_cnt.values()],
+            "割合":[f"{v:.2f}%" for v in hunter_ratio.values()]
+        }).dropna().query("ハンター != ''").sort_values("記録数", ascending=False)
+
+        # マップ×ハンターの出現回数を集計
+        df_map = pd.DataFrame(records_all)
+        df_map = df_map.query("map != '' and hunter != ''")
+        map_hunter_counts = df_map.groupby(["map", "hunter"]).size().reset_index(name="count")
+
+        #マップ、ハンター、スポーン位置の集計
+        df_sp=pd.DataFrame(records_all)
+        df_sp=df_sp.dropna().query("map != '' and hunter != ''")
+        spawn_counts=df_sp.groupby(["map","hunter","spawn_h"]).size().reset_index(name="count")
+
+        st.write(f"総記録件数：{total}件")
+        with st.expander("遭遇率順"):
+            st.table(df[["ハンター","記録数","割合"]])
+
+        with st.expander("マップ別ハンター"):
+            # pandasで整形済みの map_hunter_counts を使って
+            for map_name in map_hunter_counts["map"].unique():
+                with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
+                    map_df = map_hunter_counts.query(f"map == '{map_name}'")
+                    st.bar_chart(map_df.set_index("hunter")["count"],height=250)
+
+        with st.expander("スポーン別(準備中)"):
+            for map_name in map_hunter_counts["map"].unique():
+                with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
+                    sp_df=spawn_counts.query(f"map=='{map_name}'")
+                    st.table(sp_df[["hunter","spawn_h","count"]])
+    
+#記録
+with tab1:
+    #入力フォーム_段位
+    rank=st.selectbox("段位を選択",options=["5","6","7"])
+
+    #入力フォーム_マップ
+    map=st.selectbox("マップを選択（必須）",options=maps)
+
+    #入力フォーム_サバイバー
+    #見やすさのためにたたむ
+    with st.expander("BANされたサバイバーを記録（必須）"):
+        banA=st.selectbox("1人目のBAN済サバイバー",options=list(survivors.values()))
+        banB=st.selectbox("2人目のBAN済サバイバー",options=list(survivors.values()))
+        banC=st.selectbox("3人目のBAN済サバイバー",options=list(survivors.values()))
+    #書き込む前に並べ替え
+        name_to_id_s={v_s:k_s for k_s,v_s in survivors.items()}
+        selected_survivor=[banA,banB,banC]
+        sorted_ban=sorted(selected_survivor,key=lambda x:name_to_id_s.get(x,999))
+        ban1=sorted_ban[0]
+        ban2=sorted_ban[1]
+        ban3=sorted_ban[2]
+
+    #入力フォーム_対戦ハンター
+    hunter=st.selectbox("対戦ハンターを選択（必須）",options=list(hunters.values()))
+    #入力フォーム_BAN済ハンター
+    #BAN済ハンターは任意なのでたたむ
+    with st.expander("BANしたハンターを記録（任意）"):
+        banned_hunterA=st.selectbox("1人目のBAN済ハンター",options=list(hunters.values()))
+        banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
+        banned_hunterC=st.selectbox("3人目のBAN済ハンター",options=list(hunters.values()))
+    #並べ替え
+        name_to_id_h={v_h:k_h for k_h,v_h in hunters.items()}
+        selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
+        sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
+        banned_hunter1=sorted_ban[0]
+        banned_hunter2=sorted_ban[1]
+        banned_hunter3=sorted_ban[2]
+
+    #入力フォーム_スポーン位置
+    with st.expander("スポーン記録(任意)"):
+    #ハンターの位置
+        with st.expander("ハンターの位置"):
+            st.text(f"現在のマップ：{map}")
+            with st.container():
+                if map=="永眠町":
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[:4]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[4:7]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[7:10]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                elif map=="湖景村" or map=="月の河公園":
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[:4]:    
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[4:8]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[8:]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                else:
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[:3]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[3:6]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+                    with st.container(horizontal=True,horizontal_alignment="left"):
+                        for sp in sp_list[6:9]:
+                            if st.button(f"{sp}",key=f"bu_{sp}"):
+                                st.session_state["spawn_h"]=sp
+            if st.button("スポーン位置をリセット"):
+                st.session_state["spawn_h"]=None
+            spawn_h=st.session_state["spawn_h"]
+            st.text(f"選択中スポーン位置：{spawn_h}")        
+    #サバイバーの位置
+        with st.expander("サバイバーの位置"):
+            with st.form("鯖スポーン"):
+                st.text(f"現在のマップ：{map}")
+                with st.container():
+                    if map=="永眠町":
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[:4]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[4:7]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[7:10]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        st.session_state["checkBox_11"]=False
+                        st.session_state["checkBox_12"]=False
+                    elif map=="湖景村" or map=="月の河公園":
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[:4]:    
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[4:8]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[8:]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                    else:
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[:3]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[3:6]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        with st.container(horizontal=True,horizontal_alignment="left"):
+                            for sp in sp_list[6:9]:
+                                key = f"checkBox_{sp}"
+                                st.checkbox("",key=key)
+                        st.session_state["checkBox_10"]=False
+                        st.session_state["checkBox_11"]=False
+                        st.session_state["checkBox_12"]=False
+                submitted=st.form_submit_button("スポーンを確定")
+            if submitted:    
+                cnt=0
+                for sp in sp_list:
+                    if st.session_state.get(f"checkBox_{sp}",False)==True:
+                        if cnt>=4:
+                            st.warning("スポーン位置が多すぎます")
+                            st.session_state["spawn_s"]=[None,None,None,None]
+                            cnt+=1
+                            break
+                        st.session_state["spawn_s"][cnt]=sp
                         cnt+=1
-                        break
-                    st.session_state["spawn_s"][cnt]=sp
-                    cnt+=1
-            if cnt==4:
-                st.success(f"スポーンを確定しました：{st.session_state["spawn_s"]}")
-        spawn_s1=st.session_state["spawn_s"][0]
-        spawn_s2=st.session_state["spawn_s"][1]
-        spawn_s3=st.session_state["spawn_s"][2]
-        spawn_s4=st.session_state["spawn_s"][3]
-
-#データ表示
-#サバイバーからハンターを検索
-if st.button("サバイバーから検索"):
-    if ban1!="" and ban2!="" and ban3!="":
-        #３キャラ一致
-        st.text("【３キャラ一致】")
-        response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
-        if response.data:
-            st.table(response.data)
+                if cnt==4:
+                    st.success(f"スポーンを確定しました：{st.session_state["spawn_s"]}")
+                spawn_s1=st.session_state["spawn_s"][0]
+                spawn_s2=st.session_state["spawn_s"][1]
+                spawn_s3=st.session_state["spawn_s"][2]
+                spawn_s4=st.session_state["spawn_s"][3]
+    #データ操作
+    if st.button("記録"):
+        if ban1!="" and ban2!="" and ban3!="" and hunter!="" and map!="":
+            res = supabase.table("BannedCharaList").insert({
+                "rank":rank,
+                "ban1":ban1,
+                "ban2":ban2,
+                "ban3":ban3,
+                "map":map,
+                "hunter":hunter,
+                "banned_hunter1":banned_hunter1,
+                "banned_hunter2":banned_hunter2,
+                "banned_hunter3":banned_hunter3,
+                "spawn_h":spawn_h,
+                "spawn_s1":spawn_s1,
+                "spawn_s2":spawn_s2,
+                "spawn_s3":spawn_s3,
+                "spawn_s4":spawn_s4
+                }).execute()
+            st.success("記録完了")
         else:
-            st.text("該当なし")
-        #２キャラ一致
-        st.text("【２キャラ一致】")
-        response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").execute()
-        match2chara_map=[]
-        match2chara=[]
-        #match1chara=[]
-        for i in response.data:
-            match_m=False
-            match_count_c=0
-            if i["map"] == map:
-                match_m=True
-            if i["ban1"] in selected_survivor:
-                match_count_c+=1
-            if i["ban2"] in selected_survivor:
-                match_count_c+=1
-            if i["ban3"] in selected_survivor:
-                match_count_c+=1
-            if match_count_c==2 and match_m==True:
-                match2chara_map.append(i)
-            elif match_count_c==2:
-                match2chara.append(i)
-            #elif match_count==1:
-            #    match1chara.append(i)
-        if match2chara_map!=[]:
-            st.text("マップ一致")
-            st.table(match2chara_map)
-        if match2chara!=[]:
-            st.text("マップ不一致")
-            st.table(match2chara)
-        if match2chara_map==[] and match2chara==[]:
-            st.text("該当なし")
-    else:
-        st.warning("３人入力してください")
+            st.warning("未入力の項目があります")
 
-#ハンターからサバイバーを検索
-if st.button("ハンターから検索"):
-    if hunter!="":
-        response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("hunter",hunter).execute()
-        if response.data:
-            st.table(response.data)
+#検索
+with tab2:
+    #サバイバーからハンターを検索
+    st.text("【記録タブで入力後に押してください】")
+    st.text(f"サバイバー：{ban1},{ban2},{ban3}")
+    st.text(f"マップ：{map}")
+
+    if st.button("サバイバーから検索"):
+        if ban1!="" and ban2!="" and ban3!="":
+            #３キャラ一致
+            st.text("【３キャラ一致】")
+            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
+            if response.data:
+                st.table(response.data)
+            else:
+                st.text("該当なし")
+            #２キャラ一致
+            st.text("【２キャラ一致】")
+            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").execute()
+            match2chara_map=[]
+            match2chara=[]
+            #match1chara=[]
+            for i in response.data:
+                match_m=False
+                match_count_c=0
+                if i["map"] == map:
+                    match_m=True
+                if i["ban1"] in selected_survivor:
+                    match_count_c+=1
+                if i["ban2"] in selected_survivor:
+                    match_count_c+=1
+                if i["ban3"] in selected_survivor:
+                    match_count_c+=1
+                if match_count_c==2 and match_m==True:
+                    match2chara_map.append(i)
+                elif match_count_c==2:
+                    match2chara.append(i)
+                #elif match_count==1:
+                #    match1chara.append(i)
+            if match2chara_map!=[]:
+                st.text("マップ一致")
+                st.table(match2chara_map)
+            if match2chara!=[]:
+                st.text("マップ不一致")
+                st.table(match2chara)
+            if match2chara_map==[] and match2chara==[]:
+                st.text("該当なし")
         else:
-            st.text("記録なし")
+            st.warning("３人入力してください")
 
-#データ操作
-if st.button("記録"):
-    if ban1!="" and ban2!="" and ban3!="" and hunter!="" and map!="":
-        res = supabase.table("BannedCharaList").insert({
-            "rank":rank,
-            "ban1":ban1,
-            "ban2":ban2,
-            "ban3":ban3,
-            "map":map,
-            "hunter":hunter,
-            "banned_hunter1":banned_hunter1,
-            "banned_hunter2":banned_hunter2,
-            "banned_hunter3":banned_hunter3,
-            "spawn_h":spawn_h,
-            "spawn_s1":spawn_s1,
-            "spawn_s2":spawn_s2,
-            "spawn_s3":spawn_s3,
-            "spawn_s4":spawn_s4
-            }).execute()
-        st.success("記録完了")
-    else:
-        st.warning("未入力の項目があります")
+    #ハンターからサバイバーを検索
+    st.text(f"ハンター：{hunter}")
+    if st.button("ハンターから検索"):
+        if hunter!="":
+            response=supabase.table("BannedCharaList").select("map,ban1,ban2,ban3").eq("hunter",hunter).execute()
+            if response.data:
+                st.table(response.data)
+            else:
+                st.text("記録なし")
