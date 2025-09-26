@@ -243,6 +243,7 @@ with tab1:
             banned_hunter1=st.session_state["banned_h"][0]
             banned_hunter2=st.session_state["banned_h"][1]
             banned_hunter3=st.session_state["banned_h"][2]
+            st.success(f"入力を確定：{banned_hunter1}、{banned_hunter2}、{banned_hunter3}")
 
     #入力フォーム_スポーン位置
     with st.expander("スポーン記録(任意)"):
