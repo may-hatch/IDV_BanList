@@ -16,17 +16,31 @@ url=os.getenv("SUPABASE_URL")
 key=os.getenv("SUPABASE_KEY")
 supabase=create_client(url,key)
 
-#マップ管理
-if "spawn_h" not in st.session_state:
-    st.session_state["spawn_h"]=[None]
+#検索ボタン稼働用
+if "submit_s" not in st.session_state:
+    st.session_state["submit_s"]=False
+if "submit_h" not in st.session_state:
+    st.session_state["submit_h"]=False
 
+#キャラ記録用
+if "banned_s" not in st.session_state:
+    st.session_state["banned_s"]=[None]*3
+ban1=st.session_state["banned_s"][0]
+ban2=st.session_state["banned_s"][1]
+ban3=st.session_state["banned_s"][2]
+
+#マップ記録用
+if "choosed_map" not in st.session_state:
+    st.session_state["choosed_map"]=None
+if "spawn_h" not in st.session_state:
+    st.session_state["spawn_h"]=None
 if "spawn_s" not in st.session_state:
     st.session_state["spawn_s"]=[None]*4
 
 maps=["","軍需工場","赤の教会","聖心病院","湖景村","月の河公園","レオの思い出","永眠町","中華街","罪の森"]
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
 
-survivors= {999: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
+survivors= {999:None, 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 'マジシャン',
                 6: '冒険家', 7: '傭兵', 8: '空軍', 9: '祭司', 10: '機械技師',
                 11: 'オフェンス', 12: '心眼', 13: '調香師', 14: 'カウボーイ', 15: '踊り子',
                 16: '占い師', 17: '納棺師', 18: '探鉱者', 19: '呪術師', 20: '野人',
@@ -37,7 +51,7 @@ survivors= {999: '', 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: '
                 41: '応援団', 42: '人形師', 43: '火災調査員', 44: '｢レディ・ファウロ｣', 45: '｢騎士｣',
                 46: '気象学者', 47: '弓使い', 48: '｢脱出マスター｣', 49: '幸運児'}
 
-hunters={999: '', 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
+hunters={999:None, 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
          6: '芸者', 7: '白黒無常', 8: '写真家', 9: '狂眼', 10: '黄衣の王',
          11: '夢の魔女', 12: '泣き虫', 13: '魔トカゲ', 14: '血の女王', 15: 'ガードNo.26',
          16: '「使徒」', 17: 'ヴァイオリニスト', 18: '彫刻師', 19: '「アンデッド」', 20: '破輪',
@@ -58,11 +72,11 @@ with tab4:
 
     【使い方：記録タブ】
     サバイバー段位(最高峰は7)、BANされたキャラ、マップ、ハンターを必ず選択してください。
-    入力後に「記録」を押すと、そこまでに入力した情報が記録されます。
-        ※記録ボタンを押さないと反映されません！
+        ※仕様変更でサバイバー３人入力後は確定ボタンを押さないと反映されなくなりました！
+    全ての必須項目入力後に「記録」を押すと、そこまでに入力した情報が記録されます。
 
     【使い方：検索タブ】
-    記録タブでサバイバーを入力後、「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
+    記録タブでサバイバーを確定後、「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
     ２キャラのみ一致の場合は、マップが一致しているハンターが先に表示されます。
         ※マップ未入力でも検索できます
     「ハンターから検索」を押すと、記録タブで選択しているハンターのBAN記録が表示されます。
@@ -76,25 +90,41 @@ with tab4:
         ※スポーンはデータも少なく、まだ調整中です
             左から右、上から下に番号を振っているので、見たい人は手動で見てください
             （永眠町は墓が04、正門ゲート前が05です）
-
-    【更新】
-    2025-09-26-00:00
-            統計ボタンの動作確認完了。
-            全記録のうちどのハンターとどれくらい会ったかを見られます。
-    2025-09-26-12:00
-        ★全体：
-            タブ分割に伴い表示を調整
-        ★記録タブ：
-            一部項目の内部挙動を変更。
-        ★検索タブ：
-            タブ分割に伴い表示を調整
-        ★統計タブ：
-            マップごとの遭遇数を表示。
-            スポーン記録済みハンターのスポーン位置を仮実装。
-             
-    【更新予定】
-    未定
     """)
+    with st.expander("更新予定・履歴"):
+        st.text("""
+        【今後の予定】
+        ・２キャラ一致時の表示の調整
+            （記録件数増加の方が早ければ実行しない）
+        ・スポーン位置別ハンターの視覚的表示
+        ・コードを綺麗に書き直す(高速化)
+        
+        【履歴】
+        2025-09-26-19:30
+            ★全体：
+                細かい内部的な修正。
+            ★記録タブ：
+                サバイバー・ハンターの確定ボタンを設置。
+                押すまでは記録されませんが、裏で行われていた再読み込みも挟まりません。
+                軽量化…にはなってないと思う。私の好み。
+            ★検索タブ：
+                サバイバー未入力時・ハンター未入力時は各検索ボタンが押せないように変更。
+            ★統計タブ：
+                スポーン別表示をスポーン位置順に変更。
+        2025-09-26-12:00
+            ★全体：
+                タブ分割に伴い表示を調整
+            ★記録タブ：
+                サバイバーのスポーン選択を確定するまで内部再読み込みしない仕様に修正。
+            ★検索タブ：
+                タブ分割に伴い表示を調整
+            ★統計タブ：
+                マップごとの遭遇数を表示。
+                スポーン記録済みハンターのスポーン位置を仮実装。
+        2025-09-26-00:00
+                統計ボタンの動作確認完了。
+                全記録のうちどのハンターとどれくらい会ったかを見られます。
+        """)
 
 #統計表示
 with tab3:
@@ -145,8 +175,8 @@ with tab3:
         with st.expander("スポーン別(準備中)"):
             for map_name in map_hunter_counts["map"].unique():
                 with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
-                    sp_df=spawn_counts.query(f"map=='{map_name}'")
-                    st.table(sp_df[["hunter","spawn_h","count"]])
+                    sp_df=spawn_counts.query(f"map=='{map_name}'").sort_values("spawn_h")
+                    st.table(sp_df[["spawn_h","hunter","count"]])
     
 #記録
 with tab1:
@@ -159,32 +189,49 @@ with tab1:
     #入力フォーム_サバイバー
     #見やすさのためにたたむ
     with st.expander("BANされたサバイバーを記録（必須）"):
-        banA=st.selectbox("1人目のBAN済サバイバー",options=list(survivors.values()))
-        banB=st.selectbox("2人目のBAN済サバイバー",options=list(survivors.values()))
-        banC=st.selectbox("3人目のBAN済サバイバー",options=list(survivors.values()))
-    #書き込む前に並べ替え
-        name_to_id_s={v_s:k_s for k_s,v_s in survivors.items()}
-        selected_survivor=[banA,banB,banC]
-        sorted_ban=sorted(selected_survivor,key=lambda x:name_to_id_s.get(x,999))
-        ban1=sorted_ban[0]
-        ban2=sorted_ban[1]
-        ban3=sorted_ban[2]
+        with st.form("鯖ban選択"):
+            banA=st.selectbox("1人目のBAN済サバイバー",options=list(survivors.values()))
+            banB=st.selectbox("2人目のBAN済サバイバー",options=list(survivors.values()))
+            banC=st.selectbox("3人目のBAN済サバイバー",options=list(survivors.values()))
+            submitted_s=st.form_submit_button("サバイバーのBANを確定")
+        if submitted_s:
+            if banA==None or banB==None or banC==None:
+                st.warning("３キャラ入力して下さい")
+                st.session_state["submit_s"]=False
+            else:
+                st.session_state["submit_s"]=True
+            #書き込む前に並べ替え
+                name_to_id_s={v_s:k_s for k_s,v_s in survivors.items()}
+                selected_survivor=[banA,banB,banC]
+                st.session_state["banned_s"]=sorted(selected_survivor,key=lambda x:name_to_id_s.get(x,999))
+                #st.session_state["banned_s"][0]=sorted_ban[0]
+                #st.session_state["banned_s"][1]=sorted_ban[1]
+                #st.session_state["banned_s"][2]=sorted_ban[2]
+                ban1=st.session_state["banned_s"][0]
+                ban2=st.session_state["banned_s"][1]
+                ban3=st.session_state["banned_s"][2]
+                st.success(f"入力を確定：{ban1}、{ban2}、{ban3}")
 
     #入力フォーム_対戦ハンター
     hunter=st.selectbox("対戦ハンターを選択（必須）",options=list(hunters.values()))
+    if hunter!=None:
+        st.session_state["submit_h"]=True
     #入力フォーム_BAN済ハンター
     #BAN済ハンターは任意なのでたたむ
     with st.expander("BANしたハンターを記録（任意）"):
-        banned_hunterA=st.selectbox("1人目のBAN済ハンター",options=list(hunters.values()))
-        banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
-        banned_hunterC=st.selectbox("3人目のBAN済ハンター",options=list(hunters.values()))
-    #並べ替え
-        name_to_id_h={v_h:k_h for k_h,v_h in hunters.items()}
-        selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
-        sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
-        banned_hunter1=sorted_ban[0]
-        banned_hunter2=sorted_ban[1]
-        banned_hunter3=sorted_ban[2]
+        with st.form("ban_h"):
+            banned_hunterA=st.selectbox("1人目のBAN済ハンター",options=list(hunters.values()))
+            banned_hunterB=st.selectbox("2人目のBAN済ハンター",options=list(hunters.values()))
+            banned_hunterC=st.selectbox("3人目のBAN済ハンター(空欄可)",options=list(hunters.values()))
+            submitted_h=st.form_submit_button("ハンターのBANを確定")
+        if submitted_h:
+        #並べ替え
+            name_to_id_h={v_h:k_h for k_h,v_h in hunters.items()}
+            selected_hunter=[banned_hunterA,banned_hunterB,banned_hunterC]
+            sorted_ban=sorted(selected_hunter,key=lambda x:name_to_id_h.get(x,999))
+            banned_hunter1=sorted_ban[0]
+            banned_hunter2=sorted_ban[1]
+            banned_hunter3=sorted_ban[2]
 
     #入力フォーム_スポーン位置
     with st.expander("スポーン記録(任意)"):
@@ -284,8 +331,8 @@ with tab1:
                         st.session_state["checkBox_10"]=False
                         st.session_state["checkBox_11"]=False
                         st.session_state["checkBox_12"]=False
-                submitted=st.form_submit_button("スポーンを確定")
-            if submitted:    
+                submitted_sp=st.form_submit_button("スポーンを確定")
+            if submitted_sp:    
                 cnt=0
                 for sp in sp_list:
                     if st.session_state.get(f"checkBox_{sp}",False)==True:
@@ -328,22 +375,25 @@ with tab1:
 #検索
 with tab2:
     #サバイバーからハンターを検索
-    st.text("【記録タブで入力後に押してください】")
-    st.text(f"サバイバー：{ban1},{ban2},{ban3}")
-    st.text(f"マップ：{map}")
+    if st.session_state["submit_s"]==True:
+        st.text(f"サバイバー：{ban1},{ban2},{ban3}")
+        st.text(f"マップ：{map}")
+    else:
+        st.text("↓記録タブで「BANされたサバイバー」を確定後に利用できます")
 
-    if st.button("サバイバーから検索"):
+    if st.button("サバイバーから検索",disabled=not st.session_state["submit_s"]):
         if ban1!="" and ban2!="" and ban3!="":
             #３キャラ一致
             st.text("【３キャラ一致】")
-            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).execute()
+            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).order("hunter").execute()
             if response.data:
                 st.table(response.data)
             else:
                 st.text("該当なし")
             #２キャラ一致
             st.text("【２キャラ一致】")
-            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").execute()
+            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").order("hunter").execute()
+            records=response.data
             match2chara_map=[]
             match2chara=[]
             #match1chara=[]
@@ -352,11 +402,11 @@ with tab2:
                 match_count_c=0
                 if i["map"] == map:
                     match_m=True
-                if i["ban1"] in selected_survivor:
+                if i["ban1"] in st.session_state["banned_s"]:
                     match_count_c+=1
-                if i["ban2"] in selected_survivor:
+                if i["ban2"] in st.session_state["banned_s"]:
                     match_count_c+=1
-                if i["ban3"] in selected_survivor:
+                if i["ban3"] in st.session_state["banned_s"]:
                     match_count_c+=1
                 if match_count_c==2 and match_m==True:
                     match2chara_map.append(i)
@@ -368,18 +418,29 @@ with tab2:
                 st.text("マップ一致")
                 st.table(match2chara_map)
             if match2chara!=[]:
-                st.text("マップ不一致")
-                st.table(match2chara)
+                #list_for_2chara=[rec2["hunter"] for rec2 in match2chara if rec2["hunter"]]
+                #cnt_2chara = Counter(list_for_2chara)
+                #list_h_2chara=cnt_2chara.keys()
+                #sorted_2chara=sorted(cnt_2chara.items(),key=lambda x: x[1],reverse=True)
+                if len(match2chara)>=5:
+                    with st.expander("マップ不一致(該当多数のため折り畳み)"):
+                        st.table(match2chara)                        
+                else:
+                    st.text("マップ不一致")
+                    st.table(match2chara)
             if match2chara_map==[] and match2chara==[]:
                 st.text("該当なし")
         else:
             st.warning("３人入力してください")
 
     #ハンターからサバイバーを検索
-    st.text(f"ハンター：{hunter}")
-    if st.button("ハンターから検索"):
+    if st.session_state["submit_h"]==False:
+        st.text(f"↓記録タブで「対戦ハンター」を選択後に利用できます")
+    else:
+        st.text(f"ハンター：{hunter}")
+    if st.button("ハンターから検索",disabled=not st.session_state["submit_h"]):
         if hunter!="":
-            response=supabase.table("BannedCharaList").select("map,ban1,ban2,ban3").eq("hunter",hunter).execute()
+            response=supabase.table("BannedCharaList").select("map,ban1,ban2,ban3").eq("hunter",hunter).order("map").execute()
             if response.data:
                 st.table(response.data)
             else:
