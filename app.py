@@ -28,7 +28,7 @@ if "banned_s" not in st.session_state:
 ban1=st.session_state["banned_s"][0]
 ban2=st.session_state["banned_s"][1]
 ban3=st.session_state["banned_s"][2]
-if "banned_hunter" not in st.session_state:
+if "banned_h" not in st.session_state:
     st.session_state["banned_h"]=[None]*3
 banned_hunter1=st.session_state["banned_h"][0]
 banned_hunter2=st.session_state["banned_h"][1]
