@@ -159,8 +159,8 @@ with tab3:
         df = pd.DataFrame({
             "ハンター": list(hunter_ratio.keys()),
             "記録数":[f"{svc}試合" for svc in sorted_by_cnt.values()],
-            "割合":[f"{v:.2f}%" for v in hunter_ratio.values()]
-        }).dropna().query("ハンター != ''").sort_values("記録数", ascending=False)
+            "割合(%)":[f"{v:.2f}" for v in hunter_ratio.values()]
+        }).dropna().query("ハンター != ''").sort_values("割合(%)", ascending=False)
 
         # マップ×ハンターの出現回数を集計
         df_map = pd.DataFrame(records_all)
@@ -174,7 +174,7 @@ with tab3:
 
         st.write(f"総記録件数：{total}件")
         with st.expander("遭遇率順"):
-            st.table(df[["ハンター","記録数","割合"]])
+            st.table(df[["ハンター","記録数","割合(%)"]])
 
         with st.expander("マップ別ハンター"):
             # pandasで整形済みの map_hunter_counts を使って
