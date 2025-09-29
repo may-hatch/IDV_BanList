@@ -61,6 +61,7 @@ survivors= {999:None, 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 
                 36: '教授', 37: '骨董商', 38: '作曲家', 39: '記者', 40: '航空エンジニア',
                 41: '応援団', 42: '人形師', 43: '火災調査員', 44: '｢レディ・ファウロ｣', 45: '｢騎士｣',
                 46: '気象学者', 47: '弓使い', 48: '｢脱出マスター｣', 49: '幸運児'}
+survivors_name=list(survivors.values())
 
 hunters={999:None, 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
          6: '芸者', 7: '白黒無常', 8: '写真家', 9: '狂眼', 10: '黄衣の王',
@@ -91,8 +92,9 @@ with tab4:
     ２キャラのみ一致の場合は、マップが一致しているハンターが先に表示されます。
         ※マップ未入力でも検索できます
     「ハンターから検索」を押すと、記録タブで選択しているハンターの
-            BAN記録
+            BAN記録(全件)
             マップ割合
+            サバイバーごとのBAN割合
         が表示されます。
     
     【使い方：統計タブ】
@@ -108,13 +110,18 @@ with tab4:
     with st.expander("更新予定・履歴"):
         st.text("""
         【今後の予定】
+        ・コードを綺麗に書き直す
         ・２キャラ一致時の表示の調整
-            （記録件数増加の方が早ければ実行しない）
+            特徴的なキャラに絞って順序入れ替え
         ・スポーン位置別ハンターの視覚的表示
-        ・コードを綺麗に書き直す(高速化)
-        ・ハンターから検索時にスポーン位置・BANキャラ割合を表示
+            これは各ハンターの記録がもっと増えたら…
+        ・ハンターから検索時の機能追加
+            スポーン位置・BANキャラ割合(多いペア)
                 
         【履歴】
+        2025-09-29-12:45
+            ★検索タブ：
+                ハンターから検索時にBANキャラ割合(1キャラ単位)の表示機能を実装
         2025-09-29-10:20
             ★検索タブ：
                 ハンターから検索時にマップ割合の表示機能を実装
@@ -462,19 +469,43 @@ with tab2:
         st.text(f"ハンター：{hunter}")
     if st.button("ハンターから検索",disabled=not st.session_state["submit_h"]):
         if hunter!="":
-            response_h=supabase.table("BannedCharaList").select("map,ban1,ban2,ban3").eq("hunter",hunter).order("map").execute()
+            response_h=supabase.table("BannedCharaList").select("map,spawn_h,ban1,ban2,ban3").eq("hunter",hunter).order("map").order("spawn_h").execute()
             if response_h.data:
                 #データ集計
+                #BAN割合
+                bans_list_h=[]
+                bans_name_h=[]
+                bans_ratio_h=[]
+                for res_h in response_h.data:
+                    bans_list_h.append(res_h["ban1"])
+                    bans_list_h.append(res_h["ban2"])
+                    bans_list_h.append(res_h["ban3"])
+                bans_counts_h=Counter(bans_list_h)
+                for b in survivors_name:
+                    if b in bans_counts_h:
+                        value=round(bans_counts_h[b]/sum(bans_counts_h.values())*300,2)
+                        bans_name_h.append(b)
+                        bans_ratio_h.append(value)
+                    else:
+                        pass
+                df_data_h=pd.DataFrame({
+                    "キャラ":bans_name_h,
+                    "BAN率":bans_ratio_h})
+                #マップ
                 map_list_h=[res_h["map"] for res_h in response_h.data if res_h["map"]]
                 map_counts_h=Counter(map_list_h)
                 map_ratio_h=[round(map_counts_h[m]/sum(map_counts_h.values())*100,2) for m in maps[1:]]
                 df_map_h=pd.DataFrame({
                     "マップ":maps[1:],
                     "割合":map_ratio_h})
+                #スポーン位置
+
                 #表示
                 st.text(f"記録数：{len(map_list_h)}件")
                 with st.expander("全件"):
                     st.table(response_h.data)
+                st.text("BANしたサバイバー割合")
+                st.bar_chart(df_data_h.set_index("キャラ"))
                 st.text("マップ割合")
                 st.bar_chart(df_map_h.set_index("マップ"))
             else:
