@@ -90,7 +90,10 @@ with tab4:
     記録タブでサバイバーを確定後、「サバイバーから検索」を押すと、そのBANをしたハンターの一覧を表示します。
     ２キャラのみ一致の場合は、マップが一致しているハンターが先に表示されます。
         ※マップ未入力でも検索できます
-    「ハンターから検索」を押すと、記録タブで選択しているハンターのBAN記録が表示されます。
+    「ハンターから検索」を押すと、記録タブで選択しているハンターの
+            BAN記録
+            マップ割合
+        が表示されます。
     
     【使い方：統計タブ】
     統計を表示ボタンを押すと、ボタンが押される直前までに記録された情報の
@@ -109,8 +112,15 @@ with tab4:
             （記録件数増加の方が早ければ実行しない）
         ・スポーン位置別ハンターの視覚的表示
         ・コードを綺麗に書き直す(高速化)
-        
+        ・ハンターから検索時にスポーン位置・BANキャラ割合を表示
+                
         【履歴】
+        2025-09-29-10:20
+            ★検索タブ：
+                ハンターから検索時にマップ割合の表示機能を実装
+        2025-09-28-22:30
+            ★統計タブ：
+                遭遇率の表示順の不具合を修正
         2025-09-26-19:30
             ★全体：
                 細かい内部的な修正。
@@ -452,8 +462,20 @@ with tab2:
         st.text(f"ハンター：{hunter}")
     if st.button("ハンターから検索",disabled=not st.session_state["submit_h"]):
         if hunter!="":
-            response=supabase.table("BannedCharaList").select("map,ban1,ban2,ban3").eq("hunter",hunter).order("map").execute()
-            if response.data:
-                st.table(response.data)
+            response_h=supabase.table("BannedCharaList").select("map,ban1,ban2,ban3").eq("hunter",hunter).order("map").execute()
+            if response_h.data:
+                #データ集計
+                map_list_h=[res_h["map"] for res_h in response_h.data if res_h["map"]]
+                map_counts_h=Counter(map_list_h)
+                map_ratio_h=[round(map_counts_h[m]/sum(map_counts_h.values())*100,2) for m in maps[1:]]
+                df_map_h=pd.DataFrame({
+                    "マップ":maps[1:],
+                    "割合":map_ratio_h})
+                #表示
+                st.text(f"記録数：{len(map_list_h)}件")
+                with st.expander("全件"):
+                    st.table(response_h.data)
+                st.text("マップ割合")
+                st.bar_chart(df_map_h.set_index("マップ"))
             else:
                 st.text("記録なし")
