@@ -193,7 +193,7 @@ with tab3:
         #★表示
         #遭遇率
         st.write(f"総記録件数：{total_hunters}件")
-        with st.expander("遭遇率順"):
+        with st.expander("ハンター遭遇率"):
             st.table(df_h[["ハンター","記録数","割合(%)"]])
 
         #サバイバー(単体)ごとのBAN率を計算
