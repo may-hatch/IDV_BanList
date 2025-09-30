@@ -119,6 +119,9 @@ with tab4:
             スポーン位置・BANキャラ割合(多いペア)
                 
         【履歴】
+        2025-09-20-11:45
+            ★統計タブ：
+                検索タブ同様、BANキャラ割合(1キャラ単位)の表示機能を実装
         2025-09-29-12:45
             ★検索タブ：
                 ハンターから検索時にBANキャラ割合(1キャラ単位)の表示機能を実装
@@ -157,42 +160,71 @@ with tab4:
 #統計表示
 with tab3:
     if st.button("統計を表示"):
-        response_all=supabase.table("BannedCharaList").select("map","hunter","spawn_h").execute()
+        response_all=supabase.table("BannedCharaList").select("map","hunter","spawn_h","ban1","ban2","ban3").execute()
         records_all=response_all.data
 
+        survivors_allBan_list=[]
+
+        #単純なハンター遭遇数、マップ選択数、サバイバー数を集計
         hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
         hunter_counts=Counter(hunter_list)
         map_list=[rec["map"] for rec in records_all if rec["map"]]
         map_counts=Counter(map_list)
+        for rec in records_all:
+            survivors_allBan_list.append(rec["ban1"])
+            survivors_allBan_list.append(rec["ban2"])
+            survivors_allBan_list.append(rec["ban3"])
+        survivors_allBan_count=Counter(survivors_allBan_list)
         
-        total=sum(hunter_counts.values())
-        sorted_by_cnt={k:v for k,v in hunter_counts.items()}
-        hunter_ratio={k:round(v/total*100,2) for k,v in hunter_counts.items()}
+        #ハンターの割合を計算
+        total_hunters=sum(hunter_counts.values())
+        sorted_byCnt_h={k:v for k,v in hunter_counts.items()}
+        hunter_ratio={k:round(v/total_hunters*100,2) for k,v in hunter_counts.items()}
         #ハンター名と割合を並び替えたリストに変換
-        sorted_items = sorted(sorted_by_cnt.items(), key=lambda x: x[1], reverse=True)
-        labels = [item[0] for item in sorted_items]
-        values = [item[1] for item in sorted_items]
-        
-        df = pd.DataFrame({
+        sorted_items_h = sorted(sorted_byCnt_h.items(), key=lambda x: x[1], reverse=True)
+
+        #遭遇率を表示するためデータフレームに入れる
+        df_h = pd.DataFrame({
             "ハンター": list(hunter_ratio.keys()),
-            "記録数":[f"{svc}試合" for svc in sorted_by_cnt.values()],
+            "記録数":[f"{sbh}試合" for sbh in sorted_byCnt_h.values()],
             "割合(%)":[f"{v:.2f}" for v in hunter_ratio.values()]
         }).dropna().query("ハンター != ''").sort_values("割合(%)", ascending=False)
+    
+        #★表示
+        #遭遇率
+        st.write(f"総記録件数：{total_hunters}件")
+        with st.expander("遭遇率順"):
+            st.table(df_h[["ハンター","記録数","割合(%)"]])
 
-        # マップ×ハンターの出現回数を集計
+        #サバイバー(単体)ごとのBAN率を計算
+        total_survivors=sum(survivors_allBan_count.values())
+        sorted_byCnt_s={k:v for k,v in survivors_allBan_count.items()}
+        survivors_ratio={k:round(v/total_survivors*300,2) for k,v in survivors_allBan_count.items()}
+        #サバイバーと割合を並び替えたリストに変換
+        sorted_items_s=sorted(sorted_byCnt_s.items(),key=lambda x: x[1], reverse=True)
+
+        #BAN率を表示するためにデータフレームに入れる
+        df_s=pd.DataFrame({
+            "サバイバー":list(survivors_ratio.keys()),
+            "記録数":[f"{sbs}試合" for sbs in sorted_byCnt_s.values()],
+            "割合(%)":[round(v,2) for v in survivors_ratio.values()]
+        }).sort_values("割合(%)",ascending=False)
+
+        #最もBANされたサバイバー(単体)
+        with st.expander("サバイバーBAN率(単体)"):
+            st.table(df_s[["サバイバー","記録数","割合(%)"]])
+
+        #マップ&ハンターの出現回数を集計
         df_map = pd.DataFrame(records_all)
         df_map = df_map.query("map != '' and hunter != ''")
         map_hunter_counts = df_map.groupby(["map", "hunter"]).size().reset_index(name="count")
 
-        #マップ、ハンター、スポーン位置の集計
+        #マップ&ハンター&スポーン位置の集計
         df_sp=pd.DataFrame(records_all)
         df_sp=df_sp.dropna().query("map != '' and hunter != ''")
         spawn_counts=df_sp.groupby(["map","hunter","spawn_h"]).size().reset_index(name="count")
-
-        st.write(f"総記録件数：{total}件")
-        with st.expander("遭遇率順"):
-            st.table(df[["ハンター","記録数","割合(%)"]])
-
+        
+        #マップ別
         with st.expander("マップ別ハンター"):
             # pandasで整形済みの map_hunter_counts を使って
             for map_name in map_hunter_counts["map"].unique():
@@ -200,6 +232,7 @@ with tab3:
                     map_df = map_hunter_counts.query(f"map == '{map_name}'")
                     st.bar_chart(map_df.set_index("hunter")["count"],height=250)
 
+        #スポーン別
         with st.expander("スポーン別(準備中)"):
             for map_name in map_hunter_counts["map"].unique():
                 with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
@@ -499,6 +532,7 @@ with tab2:
                     "マップ":maps[1:],
                     "割合":map_ratio_h})
                 #スポーン位置
+                #まだ作ってない
 
                 #表示
                 st.text(f"記録数：{len(map_list_h)}件")
