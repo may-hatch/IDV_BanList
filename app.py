@@ -35,8 +35,8 @@ banned_hunter2=st.session_state["banned_h"][1]
 banned_hunter3=st.session_state["banned_h"][2]
 
 #マップ記録用
-if "choosed_map" not in st.session_state:
-    st.session_state["choosed_map"]=None
+if "choosen_map" not in st.session_state:
+    st.session_state["choosen_map"]=None
 if "spawn_h" not in st.session_state:
     st.session_state["spawn_h"]=None
 if "spawn_s" not in st.session_state:
@@ -77,7 +77,7 @@ st.title("BAN記録/検索")
 
 tab1,tab2,tab3,tab4=st.tabs(["記録","検索","統計","使い方"])
 
-#使い方
+#使い方/
 with tab4:
     st.text("""
     五段以上の鯖３BANを想定した記録フォームです。
@@ -117,9 +117,11 @@ with tab4:
             スポーン位置・BANキャラ割合(多いペア)
                 
         【履歴】
-        2025-10-03-13:00
+        2025-10-03-20:15
             ★検索タブ：
-                サバイバーから検索・２キャラ一致の場合の表示仕様を変更
+                サバイバーから検索・２キャラ一致時に
+                最も少ないBANペア(特徴的なBANペア)を上部に表示する機能を仮実装。
+                    同数になったときに個人BAN率で並べ替えする仕様に調整予定
         2025-09-20-11:45
             ★統計タブ：
                 検索タブ同様、BANキャラ割合(1キャラ単位)の表示機能を実装
@@ -166,6 +168,7 @@ with tab3:
 
         survivors_allBan_list=[]
 
+        #【機能】遭遇率
         #単純なハンター遭遇数、マップ選択数、サバイバー数を集計
         hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
         hunter_counts=Counter(hunter_list)
@@ -176,7 +179,7 @@ with tab3:
             survivors_allBan_list.append(rec["ban2"])
             survivors_allBan_list.append(rec["ban3"])
         survivors_allBan_count=Counter(survivors_allBan_list)
-        
+
         #ハンターの割合を計算
         total_hunters=sum(hunter_counts.values())
         sorted_byCnt_h={k:v for k,v in hunter_counts.items()}
@@ -191,12 +194,12 @@ with tab3:
             "割合(%)":[f"{v:.2f}" for v in hunter_ratio.values()]
         }).dropna().query("ハンター != ''").sort_values("割合(%)", ascending=False)
     
-        #★表示
-        #遭遇率
+        #【表示】遭遇率
         st.write(f"総記録件数：{total_hunters}件")
         with st.expander("ハンター遭遇率"):
             st.table(df_h[["ハンター","記録数","割合(%)"]])
 
+        #【機能】BAN率(単体)
         #サバイバー(単体)ごとのBAN率を計算
         total_survivors=sum(survivors_allBan_count.values())
         sorted_byCnt_s={k:v for k,v in survivors_allBan_count.items()}
@@ -210,10 +213,27 @@ with tab3:
             "記録数":[f"{sbs}試合" for sbs in sorted_byCnt_s.values()],
             "割合(%)":[round(v,2) for v in survivors_ratio.values()]
         }).sort_values("割合(%)",ascending=False)
-
-        #最もBANされたサバイバー(単体)
+        #【表示】最もBANされたサバイバー(単体)
         with st.expander("サバイバーBAN率(単体)"):
             st.table(df_s[["サバイバー","記録数","割合(%)"]])
+
+        #【機能】BAN率(3人)
+        #最もBANされた組み合わせ(３人)を集計
+        bans_all=[]
+        for i in records_all:
+            bans_part=f"{i['ban1']}、{i['ban2']}、{i['ban3']}"
+            bans_all.append(bans_part)
+        cnt_ban=Counter(bans_all)
+        most_ban=cnt_ban.most_common()
+        ratio_most_ban=[round(r[1]/sum(cnt_ban.values())*100,2) for r in most_ban]
+        df_3ban=pd.DataFrame({
+            "BAN":[b[0] for b in most_ban],
+            "回数":[b[1] for b in most_ban],
+            "割合":ratio_most_ban})
+        with st.expander("サバイバーBAN率(３人)"):
+            st.table(df_3ban[["BAN","回数","割合"]])
+
+
 
         #マップ&ハンターの出現回数を集計
         df_map = pd.DataFrame(records_all)
@@ -225,15 +245,14 @@ with tab3:
         df_sp=df_sp.dropna().query("map != '' and hunter != ''")
         spawn_counts=df_sp.groupby(["map","hunter","spawn_h"]).size().reset_index(name="count")
         
-        #マップ別
+        #【表示】マップ別
         with st.expander("マップ別ハンター"):
-            # pandasで整形済みの map_hunter_counts を使って
             for map_name in map_hunter_counts["map"].unique():
                 with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
                     map_df = map_hunter_counts.query(f"map == '{map_name}'")
                     st.bar_chart(map_df.set_index("hunter")["count"],height=250)
 
-        #スポーン別
+        #【表示】スポーン別
         with st.expander("スポーン別(準備中)"):
             for map_name in map_hunter_counts["map"].unique():
                 with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
@@ -455,64 +474,64 @@ with tab2:
                 st.text("該当なし")
             #２キャラ一致
             st.text("【２キャラ一致】")
-            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").filter("ban1","eq",st.session_state["banned_s"][0]).order("hunter").execute()
+            response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").order("hunter").execute()
             records=response.data
-            #match2chara_map=[]
             match2chara=[]
             list_match2_A=[]
             list_match2_B=[]
             list_match2_C=[]
             for i in records:
-                #match_m=False
+                bans=[i["ban1"],i["ban2"],i["ban3"]]
+                banned_s=st.session_state["banned_s"]
+
+                #全件一致をはじく
+                if sorted(bans)==sorted(banned_s):
+                    continue
+
                 match_1,match_2,match_3=False,False,False
-                match2_A=False
-                match2_B=False
-                match2_C=False
-                if i["ban1"] in st.session_state["banned_s"]:
-                    match_1=True
-                if i["ban2"] in st.session_state["banned_s"]:
-                    match_2=True
-                if i["ban3"] in st.session_state["banned_s"]:
-                    match_3=True
-                if match_1 and match_2:
-                    match2_A=True
-                    list_match2_A.append(i)
-                if match_1 and match_3:
-                    match2_B=True
-                    list_match2_B.append(i)
-                if match_2 and match_3:
-                    match2_C=True
-                    list_match2_C.append(i)
-                #if i["map"] == map:
-                #    match_m=True
-                #if match_count==2 and match_m==True:
-                #    match2chara_map.append(i)
-                if match2_A or match2_B or match2_C:
+                match2_A,match2_B,match2_C=False,False,False
+                match_count = sum([b in banned_s for b in bans])
+                if match_count == 2:
+                    if banned_s[0] in bans and banned_s[1] in bans:
+                        list_match2_A.append(i)
+                    if banned_s[0] in bans and banned_s[2] in bans:
+                        list_match2_B.append(i)
+                    if banned_s[1] in bans and banned_s[2] in bans:
+                        list_match2_C.append(i)
                     match2chara.append(i)
-            #if match2chara_map:
-                #st.text("マップ一致")
-                #st.table(match2chara_map)
             if match2chara:
                 counts=[list_match2_A,list_match2_B,list_match2_C]
                 worst=min(counts,key=len)
-                with st.expander("最も特徴的なBAN"):
-                    if worst==list_match2_A:
-                        st.text(f"{ban1}、{ban2}")
-                    elif worst==list_match2_B:
-                        st.text(f"{ban1}、{ban3}")
-                    elif worst==list_match2_C:
-                        st.text(f"{ban2}、{ban3}")
+
+                if len(worst)==0:
+                    counts.remove(worst)
+                    worst=min(counts,key=len)
+                if worst==list_match2_A:
+                    txt_pair=f"{ban1}、{ban2}"
+                elif worst==list_match2_B:
+                    txt_pair=f"{ban1}、{ban3}"
+                elif worst==list_match2_C:
+                    txt_pair=f"{ban2}、{ban3}"
+                with st.expander(f"【試験中】少ないBANペア：{txt_pair}"):
+                    #動作確認用
+                    st.text(f"""
+                            {ban1},{ban2}：{len(counts[0])}
+                            {ban1},{ban3}：{len(counts[1])}
+                            {ban2},{ban3}：{len(counts[2])}""")
                     st.table(worst)
+
+                #割合問わない２キャラ一致グラフ
                 list_for_2chara=[rec2["hunter"] for rec2 in match2chara if rec2["hunter"]]
                 cnt_2chara = Counter(list_for_2chara)
                 sorted_2chara=[h for h,_ in cnt_2chara.most_common()]
-                sorted_match2chara=sorted(match2chara,key=lambda x: sorted_2chara.index(x["hunter"]) if x["hunter"] in sorted_2chara else -1)
-                #確認用
-                #st.write(sorted_match2chara)
+                sorted_match2chara=sorted(match2chara,key=lambda x: sorted_2chara.index(x["hunter"])
+                                          if x["hunter"] in sorted_2chara else -1)
                 df_2chara=pd.DataFrame({
                     "hunter":cnt_2chara.keys(),
                     "count":cnt_2chara.values()})
                 st.bar_chart(df_2chara[["hunter","count"]].set_index("hunter"))
+
+                #全部の詳細
                 if len(sorted_match2chara)>=10:
                     with st.expander("遭遇数順(多数につき折り畳み)"):
                         st.table(sorted_match2chara)                        
