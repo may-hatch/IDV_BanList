@@ -111,14 +111,15 @@ with tab4:
         st.text("""
         【今後の予定】
         ・コードを綺麗に書き直す
-        ・２キャラ一致時の表示の調整
-            特徴的なキャラに絞って順序入れ替え
         ・スポーン位置別ハンターの視覚的表示
             これは各ハンターの記録がもっと増えたら…
         ・ハンターから検索時の機能追加
             スポーン位置・BANキャラ割合(多いペア)
                 
         【履歴】
+        2025-10-03-13:00
+            ★検索タブ：
+                サバイバーから検索・２キャラ一致の場合の表示仕様を変更
         2025-09-20-11:45
             ★統計タブ：
                 検索タブ同様、BANキャラ割合(1キャラ単位)の表示機能を実装
@@ -447,50 +448,78 @@ with tab2:
         if ban1!="" and ban2!="" and ban3!="":
             #３キャラ一致
             st.text("【３キャラ一致】")
-            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).order("hunter").execute()
-            if response.data:
-                st.table(response.data)
+            response_3match=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).order("hunter").execute()
+            if response_3match.data:
+                st.table(response_3match.data)
             else:
                 st.text("該当なし")
             #２キャラ一致
             st.text("【２キャラ一致】")
-            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").order("hunter").execute()
+            response=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").filter("ban1","eq",st.session_state["banned_s"][0]).order("hunter").execute()
             records=response.data
-            match2chara_map=[]
+            #match2chara_map=[]
             match2chara=[]
-            #match1chara=[]
-            for i in response.data:
-                match_m=False
-                match_count_c=0
-                if i["map"] == map:
-                    match_m=True
+            list_match2_A=[]
+            list_match2_B=[]
+            list_match2_C=[]
+            for i in records:
+                #match_m=False
+                match_1,match_2,match_3=False,False,False
+                match2_A=False
+                match2_B=False
+                match2_C=False
                 if i["ban1"] in st.session_state["banned_s"]:
-                    match_count_c+=1
+                    match_1=True
                 if i["ban2"] in st.session_state["banned_s"]:
-                    match_count_c+=1
+                    match_2=True
                 if i["ban3"] in st.session_state["banned_s"]:
-                    match_count_c+=1
-                if match_count_c==2 and match_m==True:
-                    match2chara_map.append(i)
-                elif match_count_c==2:
+                    match_3=True
+                if match_1 and match_2:
+                    match2_A=True
+                    list_match2_A.append(i)
+                if match_1 and match_3:
+                    match2_B=True
+                    list_match2_B.append(i)
+                if match_2 and match_3:
+                    match2_C=True
+                    list_match2_C.append(i)
+                #if i["map"] == map:
+                #    match_m=True
+                #if match_count==2 and match_m==True:
+                #    match2chara_map.append(i)
+                if match2_A or match2_B or match2_C:
                     match2chara.append(i)
-                #elif match_count==1:
-                #    match1chara.append(i)
-            if match2chara_map!=[]:
-                st.text("マップ一致")
-                st.table(match2chara_map)
-            if match2chara!=[]:
-                #list_for_2chara=[rec2["hunter"] for rec2 in match2chara if rec2["hunter"]]
-                #cnt_2chara = Counter(list_for_2chara)
-                #list_h_2chara=cnt_2chara.keys()
-                #sorted_2chara=sorted(cnt_2chara.items(),key=lambda x: x[1],reverse=True)
-                if len(match2chara)>=5:
-                    with st.expander("マップ不一致(該当多数のため折り畳み)"):
-                        st.table(match2chara)                        
+            #if match2chara_map:
+                #st.text("マップ一致")
+                #st.table(match2chara_map)
+            if match2chara:
+                counts=[list_match2_A,list_match2_B,list_match2_C]
+                worst=min(counts,key=len)
+                with st.expander("最も特徴的なBAN"):
+                    if worst==list_match2_A:
+                        st.text(f"{ban1}、{ban2}")
+                    elif worst==list_match2_B:
+                        st.text(f"{ban1}、{ban3}")
+                    elif worst==list_match2_C:
+                        st.text(f"{ban2}、{ban3}")
+                    st.table(worst)
+                list_for_2chara=[rec2["hunter"] for rec2 in match2chara if rec2["hunter"]]
+                cnt_2chara = Counter(list_for_2chara)
+                sorted_2chara=[h for h,_ in cnt_2chara.most_common()]
+                sorted_match2chara=sorted(match2chara,key=lambda x: sorted_2chara.index(x["hunter"]) if x["hunter"] in sorted_2chara else -1)
+                #確認用
+                #st.write(sorted_match2chara)
+                df_2chara=pd.DataFrame({
+                    "hunter":cnt_2chara.keys(),
+                    "count":cnt_2chara.values()})
+                st.bar_chart(df_2chara[["hunter","count"]].set_index("hunter"))
+                if len(sorted_match2chara)>=10:
+                    with st.expander("遭遇数順(多数につき折り畳み)"):
+                        st.table(sorted_match2chara)                        
                 else:
-                    st.text("マップ不一致")
-                    st.table(match2chara)
-            if match2chara_map==[] and match2chara==[]:
+                    st.text("遭遇数順")
+                    st.table(sorted_match2chara)
+            if not match2chara:
                 st.text("該当なし")
         else:
             st.warning("３人入力してください")
