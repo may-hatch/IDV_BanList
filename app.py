@@ -501,23 +501,24 @@ with tab2:
                     match2chara.append(i)
             if match2chara:
                 counts=[list_match2_A,list_match2_B,list_match2_C]
-                worst=min(counts,key=len)
+                pair_list=[f"{ban1}、{ban2}", f"{ban1}、{ban3}", f"{ban2}、{ban3}"]
 
-                if len(worst)==0:
-                    counts.remove(worst)
-                    worst=min(counts,key=len)
-                if worst==list_match2_A:
-                    txt_pair=f"{ban1}、{ban2}"
-                elif worst==list_match2_B:
-                    txt_pair=f"{ban1}、{ban3}"
-                elif worst==list_match2_C:
-                    txt_pair=f"{ban2}、{ban3}"
+                length_b=999
+                for c in counts:
+                    length_n=len(c)
+                    if length_n==0:
+                        continue
+                    if length_n<length_b:
+                        length_b=length_n
+                        txt_pair=pair_list[counts.index(c)]
+                        worst=c
+
                 with st.expander(f"【試験中】少ないBANペア：{txt_pair}"):
                     #動作確認用
                     st.text(f"""
-                            {ban1},{ban2}：{len(counts[0])}
-                            {ban1},{ban3}：{len(counts[1])}
-                            {ban2},{ban3}：{len(counts[2])}""")
+                            {ban1}&{ban2}：{len(counts[0])}
+                            {ban1}&{ban3}：{len(counts[1])}
+                            {ban2}&{ban3}：{len(counts[2])}""")
                     st.table(worst)
 
                 #割合問わない２キャラ一致グラフ
