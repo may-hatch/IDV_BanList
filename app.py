@@ -9,6 +9,7 @@ import os
 from collections import Counter
 import pandas as pd
 import matplotlib.pyplot as plt
+import datetime
 
 #supabaseにつなげる
 load_dotenv()
@@ -47,6 +48,8 @@ spawn_s3=st.session_state["spawn_s"][2]
 spawn_s4=st.session_state["spawn_s"][3]
 spawn_h=st.session_state["spawn_h"]
 
+#S40(データ境界設定用)
+oldData_final=datetime.date(2025,12,21).isoformat()
 
 maps=["","軍需工場","赤の教会","聖心病院","湖景村","月の河公園","レオの思い出","永眠町","中華街","罪の森"]
 sp_list=["01","02","03","04","05","06","07","08","09","10","11","12"]
@@ -60,7 +63,8 @@ survivors= {999:None, 1: '医師', 2: '弁護士', 3: '泥棒', 4: '庭師', 5: 
                 31: '患者', 32: '｢心理学者｣', 33: '小説家', 34: '｢少女｣', 35: '泣きピエロ',
                 36: '教授', 37: '骨董商', 38: '作曲家', 39: '記者', 40: '航空エンジニア',
                 41: '応援団', 42: '人形師', 43: '火災調査員', 44: '｢レディ・ファウロ｣', 45: '｢騎士｣',
-                46: '気象学者', 47: '弓使い', 48: '｢脱出マスター｣', 49: '幻灯師', 50:'幸運児'}
+                46: '気象学者', 47: '弓使い', 48: '｢脱出マスター｣', 49: '幻灯師', 50:'闘牛士',
+                51:'幸運児'}
 survivors_name=list(survivors.values())
 
 hunters={999:None, 1: '復讐者', 2: '道化師', 3: '断罪狩人', 4: 'リッパー', 5: '結魂者',
@@ -117,6 +121,9 @@ with tab4:
             スポーン位置・BANキャラ割合(多いペア)
                 
         【履歴】
+        2026-04-15
+            新サバイバー闘牛士を追加。
+            更新が遅れたことに伴い、旧データを含めるか含めないかを選択可能に変更。
         2025-12-13-23:15
             新ハンター「女王蜂」を追加。
         2025-10-25-20:30
@@ -169,104 +176,116 @@ with tab4:
                 全記録のうちどのハンターとどれくらい会ったかを見られます。
         """)
 
+
+def showStatictics(records_all):
+    survivors_allBan_list=[]
+
+    #【機能】遭遇率
+    #単純なハンター遭遇数、マップ選択数、サバイバー数を集計
+    hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
+    hunter_counts=Counter(hunter_list)
+    map_list=[rec["map"] for rec in records_all if rec["map"]]
+    map_counts=Counter(map_list)
+    for rec in records_all:
+        survivors_allBan_list.append(rec["ban1"])
+        survivors_allBan_list.append(rec["ban2"])
+        survivors_allBan_list.append(rec["ban3"])
+    survivors_allBan_count=Counter(survivors_allBan_list)
+
+    #ハンターの割合を計算
+    total_hunters=sum(hunter_counts.values())
+    sorted_byCnt_h={k:v for k,v in hunter_counts.items()}
+    hunter_ratio={k:round(v/total_hunters*100,2) for k,v in hunter_counts.items()}
+    #ハンター名と割合を並び替えたリストに変換
+    sorted_items_h = sorted(sorted_byCnt_h.items(), key=lambda x: x[1], reverse=True)
+
+    #遭遇率を表示するためデータフレームに入れる
+    df_h = pd.DataFrame({
+        "ハンター": list(hunter_ratio.keys()),
+        "記録数":[f"{sbh}試合" for sbh in sorted_byCnt_h.values()],
+        "割合(%)":[f"{v:.2f}" for v in hunter_ratio.values()]
+    }).dropna().query("ハンター != ''").sort_values("割合(%)", ascending=False)
+
+    #【表示】遭遇率
+    st.write(f"総記録件数：{total_hunters}件")
+    with st.expander("ハンター遭遇率"):
+        st.table(df_h[["ハンター","記録数","割合(%)"]])
+
+    #【機能】BAN率(単体)
+    #サバイバー(単体)ごとのBAN率を計算
+    total_survivors=sum(survivors_allBan_count.values())
+    sorted_byCnt_s={k:v for k,v in survivors_allBan_count.items()}
+    survivors_ratio={k:round(v/total_survivors*300,2) for k,v in survivors_allBan_count.items()}
+    #サバイバーと割合を並び替えたリストに変換
+    sorted_items_s=sorted(sorted_byCnt_s.items(),key=lambda x: x[1], reverse=True)
+
+    #BAN率を表示するためにデータフレームに入れる
+    df_s=pd.DataFrame({
+        "サバイバー":list(survivors_ratio.keys()),
+        "記録数":[f"{sbs}試合" for sbs in sorted_byCnt_s.values()],
+        "割合(%)":[round(v,2) for v in survivors_ratio.values()]
+    }).sort_values("割合(%)",ascending=False)
+    #【表示】最もBANされたサバイバー(単体)
+    with st.expander("サバイバーBAN率(単体)"):
+        st.table(df_s[["サバイバー","記録数","割合(%)"]])
+
+    #【機能】BAN率(3人)
+    #最もBANされた組み合わせ(３人)を集計
+    bans_all=[]
+    for i in records_all:
+        bans_part=f"{i['ban1']}、{i['ban2']}、{i['ban3']}"
+        bans_all.append(bans_part)
+    cnt_ban=Counter(bans_all)
+    most_ban=cnt_ban.most_common()
+    ratio_most_ban=[round(r[1]/sum(cnt_ban.values())*100,2) for r in most_ban]
+    df_3ban=pd.DataFrame({
+        "BAN":[b[0] for b in most_ban],
+        "回数":[b[1] for b in most_ban],
+        "割合":ratio_most_ban})
+    with st.expander("サバイバーBAN率(３人)"):
+        st.table(df_3ban[["BAN","回数","割合"]])
+
+    #マップ&ハンターの出現回数を集計
+    df_map = pd.DataFrame(records_all)
+    df_map = df_map.query("map != '' and hunter != ''")
+    map_hunter_counts = df_map.groupby(["map", "hunter"]).size().reset_index(name="count")
+
+    #マップ&ハンター&スポーン位置の集計
+    df_sp=pd.DataFrame(records_all)
+    df_sp=df_sp.dropna().query("map != '' and hunter != ''")
+    spawn_counts=df_sp.groupby(["map","hunter","spawn_h"]).size().reset_index(name="count")
+    
+    #【表示】マップ別
+    with st.expander("マップ別ハンター"):
+        for map_name in map_hunter_counts["map"].unique():
+            with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
+                map_df = map_hunter_counts.query(f"map == '{map_name}'")
+                st.bar_chart(map_df.set_index("hunter")["count"],height=250)
+
+    #【表示】スポーン別
+    with st.expander("スポーン別(準備中)"):
+        for map_name in map_hunter_counts["map"].unique():
+            with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
+                sp_df=spawn_counts.query(f"map=='{map_name}'").sort_values("spawn_h")
+                st.table(sp_df[["spawn_h","hunter","count"]])
+
 #統計表示
 with tab3:
+    flag_rejectOld=False
+    if st.checkbox("S40以前を含めない"):
+        flag_rejectOld=True
     if st.button("統計を表示"):
-        response_all=supabase.table("BannedCharaList").select("map","hunter","spawn_h","ban1","ban2","ban3").execute()
-        records_all=response_all.data
-
-        survivors_allBan_list=[]
-
-        #【機能】遭遇率
-        #単純なハンター遭遇数、マップ選択数、サバイバー数を集計
-        hunter_list=[rec["hunter"] for rec in records_all if rec["hunter"]]
-        hunter_counts=Counter(hunter_list)
-        map_list=[rec["map"] for rec in records_all if rec["map"]]
-        map_counts=Counter(map_list)
-        for rec in records_all:
-            survivors_allBan_list.append(rec["ban1"])
-            survivors_allBan_list.append(rec["ban2"])
-            survivors_allBan_list.append(rec["ban3"])
-        survivors_allBan_count=Counter(survivors_allBan_list)
-
-        #ハンターの割合を計算
-        total_hunters=sum(hunter_counts.values())
-        sorted_byCnt_h={k:v for k,v in hunter_counts.items()}
-        hunter_ratio={k:round(v/total_hunters*100,2) for k,v in hunter_counts.items()}
-        #ハンター名と割合を並び替えたリストに変換
-        sorted_items_h = sorted(sorted_byCnt_h.items(), key=lambda x: x[1], reverse=True)
-
-        #遭遇率を表示するためデータフレームに入れる
-        df_h = pd.DataFrame({
-            "ハンター": list(hunter_ratio.keys()),
-            "記録数":[f"{sbh}試合" for sbh in sorted_byCnt_h.values()],
-            "割合(%)":[f"{v:.2f}" for v in hunter_ratio.values()]
-        }).dropna().query("ハンター != ''").sort_values("割合(%)", ascending=False)
-    
-        #【表示】遭遇率
-        st.write(f"総記録件数：{total_hunters}件")
-        with st.expander("ハンター遭遇率"):
-            st.table(df_h[["ハンター","記録数","割合(%)"]])
-
-        #【機能】BAN率(単体)
-        #サバイバー(単体)ごとのBAN率を計算
-        total_survivors=sum(survivors_allBan_count.values())
-        sorted_byCnt_s={k:v for k,v in survivors_allBan_count.items()}
-        survivors_ratio={k:round(v/total_survivors*300,2) for k,v in survivors_allBan_count.items()}
-        #サバイバーと割合を並び替えたリストに変換
-        sorted_items_s=sorted(sorted_byCnt_s.items(),key=lambda x: x[1], reverse=True)
-
-        #BAN率を表示するためにデータフレームに入れる
-        df_s=pd.DataFrame({
-            "サバイバー":list(survivors_ratio.keys()),
-            "記録数":[f"{sbs}試合" for sbs in sorted_byCnt_s.values()],
-            "割合(%)":[round(v,2) for v in survivors_ratio.values()]
-        }).sort_values("割合(%)",ascending=False)
-        #【表示】最もBANされたサバイバー(単体)
-        with st.expander("サバイバーBAN率(単体)"):
-            st.table(df_s[["サバイバー","記録数","割合(%)"]])
-
-        #【機能】BAN率(3人)
-        #最もBANされた組み合わせ(３人)を集計
-        bans_all=[]
-        for i in records_all:
-            bans_part=f"{i['ban1']}、{i['ban2']}、{i['ban3']}"
-            bans_all.append(bans_part)
-        cnt_ban=Counter(bans_all)
-        most_ban=cnt_ban.most_common()
-        ratio_most_ban=[round(r[1]/sum(cnt_ban.values())*100,2) for r in most_ban]
-        df_3ban=pd.DataFrame({
-            "BAN":[b[0] for b in most_ban],
-            "回数":[b[1] for b in most_ban],
-            "割合":ratio_most_ban})
-        with st.expander("サバイバーBAN率(３人)"):
-            st.table(df_3ban[["BAN","回数","割合"]])
-
-
-
-        #マップ&ハンターの出現回数を集計
-        df_map = pd.DataFrame(records_all)
-        df_map = df_map.query("map != '' and hunter != ''")
-        map_hunter_counts = df_map.groupby(["map", "hunter"]).size().reset_index(name="count")
-
-        #マップ&ハンター&スポーン位置の集計
-        df_sp=pd.DataFrame(records_all)
-        df_sp=df_sp.dropna().query("map != '' and hunter != ''")
-        spawn_counts=df_sp.groupby(["map","hunter","spawn_h"]).size().reset_index(name="count")
-        
-        #【表示】マップ別
-        with st.expander("マップ別ハンター"):
-            for map_name in map_hunter_counts["map"].unique():
-                with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
-                    map_df = map_hunter_counts.query(f"map == '{map_name}'")
-                    st.bar_chart(map_df.set_index("hunter")["count"],height=250)
-
-        #【表示】スポーン別
-        with st.expander("スポーン別(準備中)"):
-            for map_name in map_hunter_counts["map"].unique():
-                with st.expander(f"【{map_name}】記録数：{map_counts[map_name]}"):
-                    sp_df=spawn_counts.query(f"map=='{map_name}'").sort_values("spawn_h")
-                    st.table(sp_df[["spawn_h","hunter","count"]])
+        if flag_rejectOld==False:
+            response_all=supabase.table("BannedCharaList").select("map","hunter","spawn_h","ban1","ban2","ban3").execute()
+            records_all=response_all.data
+            showStatictics(records_all)
+        else:
+            response_all=supabase.table("BannedCharaList").select("map","hunter","spawn_h","ban1","ban2","ban3","created_at").gt("created_at",oldData_final).execute()
+            records_all=response_all.data
+            if records_all!=[]:
+                showStatictics(records_all)
+            else:
+                st.text("データはありません")
     
 #記録
 with tab1:
@@ -465,6 +484,11 @@ with tab1:
 
 #検索
 with tab2:
+    flag_rejectOld=False
+
+    if st.checkbox("S40以前を含めずに検索する"):
+        flag_rejectOld=True
+
     #サバイバーからハンターを検索
     if st.session_state["submit_s"]==True:
         st.text(f"サバイバー：{ban1},{ban2},{ban3}")
@@ -476,14 +500,24 @@ with tab2:
         if ban1!="" and ban2!="" and ban3!="":
             #３キャラ一致
             st.text("【３キャラ一致】")
-            response_3match=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).order("hunter").execute()
+
+            #S40以前含めるかでデータ分岐
+            if flag_rejectOld==False:
+                response_3match=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).order("hunter").execute()
+            else:
+                response_3match=supabase.table("BannedCharaList").select("hunter,map,ban1,ban2,ban3").eq("ban1",ban1).eq("ban2",ban2).eq("ban3",ban3).gt("created_at",oldData_final).order("hunter").execute()
+    
             if response_3match.data:
                 st.table(response_3match.data)
             else:
                 st.text("該当なし")
+
             #２キャラ一致
             st.text("【２キャラ一致】")
-            response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").order("hunter").execute()
+            if flag_rejectOld==False:
+                response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").order("hunter").execute()
+            else:
+                response=supabase.table("BannedCharaList").select("hunter,ban1,ban2,ban3").gt("created_at",oldData_final).order("hunter").execute()
             records=response.data
             match2chara=[]
             list_match2_A=[]
@@ -560,7 +594,10 @@ with tab2:
         st.text(f"ハンター：{hunter}")
     if st.button("ハンターから検索",disabled=not st.session_state["submit_h"]):
         if hunter!="":
-            response_h=supabase.table("BannedCharaList").select("map,spawn_h,ban1,ban2,ban3").eq("hunter",hunter).order("map").order("spawn_h").execute()
+            if flag_rejectOld==False:
+                response_h=supabase.table("BannedCharaList").select("map,spawn_h,ban1,ban2,ban3").eq("hunter",hunter).order("map").order("spawn_h").execute()
+            else:
+                response_h=supabase.table("BannedCharaList").select("map,spawn_h,ban1,ban2,ban3").eq("hunter",hunter).gt("created_at",oldData_final).order("map").order("spawn_h").execute()
             if response_h.data:
                 #データ集計
                 #BAN割合
